@@ -1,9 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")   // pooled (PgBouncer) — used at runtime
-  directUrl = env("DIRECT_URL")     // direct — used by prisma migrate/db push
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")   // pooled (PgBouncer) — used at runtime
+  directUrl  = env("DIRECT_URL")     // direct — used by prisma migrate/db push
+  extensions = [pgvector(map: "vector")]
 }
+
