@@ -2,8 +2,11 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import memoryRoutes from "./modules/memories/memory.routes";
 import apiKeyRoutes from "./modules/apiKeys/apiKey.routes";
 import projectRoutes from "./modules/projects/project.routes";
+import organizationRoutes from "./modules/organizations/organization.routes";
+import { clerkWebhookHandler } from "./modules/webhooks/clerk.webhook";
 import errorHandler from "./middlewares/errorHandler";
 import ApiError from "./utils/ApiError";
+import { openApiSpec } from "./docs/openapi";
 
 const app: Express = express();
 
@@ -20,9 +23,35 @@ app.get("/health", (_: Request, res: Response) => {
     });
 });
 
+// Interactive API Documentation (OpenAPI 3.0 + Scalar)
+app.get("/openapi.json", (_: Request, res: Response) => {
+    return res.status(200).json(openApiSpec);
+});
+
+app.get("/docs", (_: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/html");
+    return res.send(`
+        <!doctype html>
+        <html>
+        <head>
+            <title>Remora Memory API Reference</title>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link rel="icon" type="image/svg+xml" href="https://scalar.com/favicon.svg" />
+        </head>
+        <body>
+            <script id="api-reference" data-url="/openapi.json"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+        </body>
+        </html>
+    `);
+});
+
 // Developer platform routes
 app.use("/api/keys", apiKeyRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/organizations", organizationRoutes);
+app.post("/api/webhooks/clerk", clerkWebhookHandler);
 
 // Core memory engine v1 routes
 app.use("/v1/memories", memoryRoutes);

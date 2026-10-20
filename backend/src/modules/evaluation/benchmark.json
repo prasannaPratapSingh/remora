@@ -1,0 +1,59 @@
+[
+  {
+    "id": "case_1",
+    "name": "Programming language preference extraction",
+    "conversation": [
+      { "role": "user", "content": "I prefer TypeScript over Python for building scalable backends." }
+    ],
+    "expectedMemories": [
+      {
+        "contentContains": "TypeScript",
+        "type": "PREFERENCE"
+      }
+    ],
+    "testQueries": [
+      {
+        "query": "What language should we use for the backend?",
+        "expectedMatch": "TypeScript"
+      }
+    ]
+  },
+  {
+    "id": "case_2",
+    "name": "Project tech stack context",
+    "conversation": [
+      { "role": "user", "content": "Our application uses Neon serverless PostgreSQL and Redis for caching." }
+    ],
+    "expectedMemories": [
+      {
+        "contentContains": "PostgreSQL",
+        "type": "PROJECT_CONTEXT"
+      }
+    ],
+    "testQueries": [
+      {
+        "query": "What database does our application use?",
+        "expectedMatch": "PostgreSQL"
+      }
+    ]
+  },
+  {
+    "id": "case_3",
+    "name": "Preference update and conflict superseding",
+    "conversation": [
+      { "role": "user", "content": "I moved from React to Next.js for all my new frontend apps." }
+    ],
+    "expectedMemories": [
+      {
+        "contentContains": "Next.js",
+        "type": "PREFERENCE"
+      }
+    ],
+    "testQueries": [
+      {
+        "query": "What frontend framework does the user currently prefer?",
+        "expectedMatch": "Next.js"
+      }
+    ]
+  }
+]

@@ -285,4 +285,41 @@ export class MemoryRepository {
 
         return { memories, total };
     }
+
+    /**
+     * GDPR / Privacy: Delete all memories belonging to an external user (PRD §4.4, §36)
+     */
+    async deleteAllForUser(organizationId: string, projectId: string, externalUserId: string) {
+        return prisma.memory.updateMany({
+            where: {
+                organizationId,
+                projectId,
+                externalUserId
+            },
+            data: {
+                status: "DELETED",
+                updatedAt: new Date()
+            }
+        });
+    }
+
+    /**
+     * Export all memories for an external user (PRD §36)
+     */
+    async exportAllForUser(organizationId: string, projectId: string, externalUserId: string) {
+        return prisma.memory.findMany({
+            where: {
+                organizationId,
+                projectId,
+                externalUserId,
+                status: { not: "DELETED" }
+            },
+            include: {
+                versions: {
+                    orderBy: { createdAt: "desc" }
+                }
+            },
+            orderBy: { createdAt: "desc" }
+        });
+    }
 }

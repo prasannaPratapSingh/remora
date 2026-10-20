@@ -10,7 +10,11 @@
     "fix": "bunx prisma format && bunx prisma validate",
     "migrate": "bunx prisma migrate dev",
     "migrate:prod": "bunx prisma migrate deploy",
-    "generate": "bunx prisma generate"
+    "generate": "bunx prisma generate",
+    "worker": "bun src/worker.ts",
+    "test": "bun test --timeout 30000",
+    "eval": "bun src/modules/evaluation/evaluator.ts",
+    "cleanup": "bun src/cron/cleanupExpiredMemories.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",

@@ -1,0 +1,29 @@
+# Node dependencies & outputs
+node_modules/
+.npm
+dist/
+
+# Python caches & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+.pytest_cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Bun / Test logs
+*.log

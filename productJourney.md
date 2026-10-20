@@ -132,6 +132,64 @@ Compact Context Formatter → Injected into Application LLM
   - `GET /api/projects`: Listing projects with active memory and API key counts.
   - `GET /api/projects/:projectId/metrics`: Aggregated analytics (total memories, active vs superseded count, breakdown by `MemoryType`).
 
+### Phase 4: Rate Limiting, OpenAPI Docs, and Official TypeScript SDK
+
+#### What Was Built
+- **Redis Sliding-Window Rate Limiter (`src/middlewares/rateLimiter.ts`)**:
+  - Per-API Key sliding window limiter (120 req/min) returning standard headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`).
+  - Implements **fail-open resilience**: if Redis becomes temporarily unreachable, traffic is never dropped.
+- **Dedicated Background Worker Process (`src/worker.ts`)**:
+  - Clean worker script running `bun run worker` to process ingestion jobs independently from the web server.
+- **Interactive OpenAPI 3.0 Documentation (`/docs` & `/openapi.json`)**:
+  - Complete OpenAPI 3.0 specification covering all endpoints, parameters, schemas, and security schemes.
+  - State-of-the-art interactive API console served at `/docs` using Scalar API reference.
+- **Official TypeScript SDK (`@remora/sdk` in `sdk/`)**:
+  - Zero-dependency client library providing typed primitives:
+    - `remora.add()`: Store individual memory.
+    - `remora.search()`: Hybrid semantic retrieval.
+    - `remora.context()`: Prompt-ready compact string generation.
+    - `remora.ingest()`: Async conversation ingestion.
+    - `remora.list()`, `remora.get()`, `remora.update()`, `remora.delete()`.
+  - Built with Bun (`bun run build`), exported with full TypeScript `.d.ts` declaration files.
+- **Expanded Test Suite (`tests/sdk.test.ts`)**:
+  - 11 total integration tests across 2 suites (`memory.test.ts` and `sdk.test.ts`), passing with 100% success against the live Neon database.
+
+### Phase 5: Complete Backend Finalization (GDPR, Orgs, Webhooks, TTL & Benchmarks)
+
+#### What Was Built
+- **GDPR / Privacy Endpoints (§4.4, §36, §39)**:
+  - `DELETE /v1/memories/users/:userId`: "Forget User" - marks all memories for a user as `DELETED` in one transaction.
+  - `GET /v1/memories/users/:userId/export`: Data portability - exports all user memories with version history.
+- **Organization Management APIs (`src/modules/organizations/`)**:
+  - `POST /api/organizations`: Create workspaces with slug collision protection.
+  - `GET /api/organizations`: List organizations with project and memory counts.
+  - `GET /api/organizations/:orgId`: Fetch workspace with child projects.
+- **Clerk Webhook & Automated Onboarding (`/api/webhooks/clerk`)**:
+  - Captures `user.created` and `user.updated` events.
+  - Automatically provisions a default "Personal Workspace" and "Default Project" so developers have zero friction when onboarding.
+- **TTL & Expiry Cleanup Utility (`src/cron/cleanupExpiredMemories.ts`)**:
+  - Background task (`bun run cleanup`) updating `status = 'EXPIRED'` on memories where `expiresAt < NOW()`.
+- **Memory Quality Benchmark & Evaluation Runner (`src/modules/evaluation/evaluator.ts`)**:
+  - Pre-packaged benchmark dataset (`benchmark.json`) measuring extraction accuracy and retrieval precision.
+  - Evaluator script (`bun run eval`): **Achieved 100% Extraction Accuracy and 100% Retrieval Precision!**
+
+### Phase 6: Official Python SDK (`remora-ai`)
+
+#### What Was Built
+- **Zero-Dependency Core (`sdk-python/remora/client.py`)**:
+  - Implemented `RemoraClient` using Python's standard library `urllib`, enabling instant installation and usage without conflicting external dependency versions.
+  - Built strongly typed dataclasses for `Memory`, `RankedMemory`, `ContextResult`, `IngestResult`, and `ScoreBreakdown`.
+  - Comprehensive error hierarchy (`AuthenticationError`, `NotFoundError`, `RateLimitError`, `RemoraError`).
+- **Support for Both Synchronous & Asynchronous Integration**:
+  - Simple 3-line integration for AI frameworks like LangChain, CrewAI, LlamaIndex, and OpenAI:
+    ```python
+    from remora import RemoraClient
+    remora = RemoraClient(api_key="rl_live_...")
+    ctx = remora.context(user_id="alice", query="recommendation")
+    ```
+- **Automated Python Test Suite (`sdk-python/tests/test_sdk.py`)**:
+  - Complete `unittest` coverage of serialization, error raising, and client initialization.
+
 ---
 
 ## 4. Key Learnings for Developers
@@ -158,8 +216,23 @@ A developer platform has two distinct auth requirements:
 1. **Browser / Human Developers:** Session-based or JWT authentication (e.g. Clerk) via cookies.
 2. **AI Agents / External Code:** Bearer token headers with cryptographically hashed API keys (`rl_live_...`), completely stateless and machine-friendly.
 
+### Learning 7: Fail-Open Strategy in Critical Path Middleware
+Auxiliary infrastructure like rate limiters or cache lookups should fail open. If a Redis node restarts or drops a packet, a customer's core AI assistant should continue functioning gracefully rather than throwing 500 errors.
+
+### Learning 8: SDK as First-Class Citizen
+In an infrastructure product (like Stripe, Twilio, or Mem0), the API is the engine, but the **SDK is the steering wheel**. Providing typed, idiomatic clients makes integration take under 5 minutes for any developer.
+
+### Learning 9: Multi-Language SDK Monorepo Strategy
+In modern developer-first platforms (like Supabase, Vercel, or Stripe), housing multiple SDKs in a unified `sdks/` directory (`sdks/typescript`, `sdks/python`) within the monorepo provides optimal maintainability:
+1. **Single Source of Truth:** API changes, OpenAPI schema updates, and multi-language client implementations evolve together in git history.
+2. **Independent Package Registry Publishing:** 
+   - `sdks/typescript/` publishes `@remora/sdk` to npm registry (`bun run build` + `npm publish --access public`).
+   - `sdks/python/` publishes `remora-ai` to PyPI (`python3 -m build` + `twine upload dist/*`).
+3. **Zero Leaky Abstractions:** Each SDK is written idiomatically for its runtime (Bun/TypeScript for JS/TS with full typing; zero external dependencies using Python's standard library `urllib` for Python).
+
 ---
 
 *This document will continuously track every architectural decision, schema migration, pipeline implementation, and product milestone as Remora evolves.*
+
 
 

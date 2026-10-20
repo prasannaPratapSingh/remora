@@ -160,3 +160,37 @@ export const listMemoriesHandler = asyncHandler(async (req: Request, res: Respon
 
     return res.status(200).json(new ApiResponse(200, "Memories fetched successfully", result));
 });
+
+export const deleteUserMemoriesHandler = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.tenant) throw new ApiError(401, "Tenant context missing");
+
+    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+    if (!userId) throw new ApiError(400, "userId parameter is required");
+
+    const result = await memoryService.deleteUserMemories(
+        req.tenant.organizationId,
+        req.tenant.projectId,
+        userId
+    );
+
+    return res.status(200).json(new ApiResponse(200, `Deleted memories for user ${userId}`, result));
+});
+
+export const exportUserMemoriesHandler = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.tenant) throw new ApiError(401, "Tenant context missing");
+
+    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+    if (!userId) throw new ApiError(400, "userId parameter is required");
+
+    const memories = await memoryService.exportUserMemories(
+        req.tenant.organizationId,
+        req.tenant.projectId,
+        userId
+    );
+
+    return res.status(200).json(new ApiResponse(200, "User memories exported successfully", {
+        userId,
+        count: memories.length,
+        memories
+    }));
+});

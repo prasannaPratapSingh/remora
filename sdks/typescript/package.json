@@ -1,0 +1,25 @@
+{
+  "name": "@remora/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript & JavaScript SDK for Remora AI Memory Infrastructure",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist"
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "mem0",
+    "agents",
+    "llm",
+    "embeddings",
+    "vector-search",
+    "pgvector",
+    "remora"
+  ],
+  "author": "Remora Team",
+  "license": "MIT"
+}

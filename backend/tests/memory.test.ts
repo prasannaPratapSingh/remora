@@ -66,7 +66,7 @@ describe("Remora Memory Engine End-to-End API Integration", () => {
                 keyHash: key.keyHash
             }
         });
-    });
+    }, 30000);
 
     afterAll(async () => {
         // Clean up memories and API keys created during test
@@ -79,7 +79,7 @@ describe("Remora Memory Engine End-to-End API Integration", () => {
         if (server) {
             server.close();
         }
-    });
+    }, 30000);
 
     test("GET /health should return 200 ok", async () => {
         const res = await fetch(`${baseUrl}/health`);

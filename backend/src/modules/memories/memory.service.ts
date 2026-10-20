@@ -299,4 +299,12 @@ export class MemoryService {
     }) {
         return this.repo.list(params);
     }
+
+    async deleteUserMemories(organizationId: string, projectId: string, externalUserId: string) {
+        return this.repo.deleteAllForUser(organizationId, projectId, externalUserId);
+    }
+
+    async exportUserMemories(organizationId: string, projectId: string, externalUserId: string) {
+        return this.repo.exportAllForUser(organizationId, projectId, externalUserId);
+    }
 }
