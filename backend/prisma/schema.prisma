@@ -1,11 +1,10 @@
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
   extensions = [pgvector(map: "vector")]
@@ -36,6 +35,7 @@ model Organization {
 
   owner    User      @relation(name: "OrganizationOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   projects Project[]
+  memories Memory[]
 
   @@index([ownerId])
   @@map("organizations")
@@ -62,15 +62,15 @@ model Project {
 
 // Store only the hash of an API key, never its raw secret
 model ApiKey {
-  id        String    @id @default(cuid())
-  projectId String
-  name      String
-  prefix    String
-  keyHash   String    @unique
+  id         String    @id @default(cuid())
+  projectId  String
+  name       String
+  prefix     String
+  keyHash    String    @unique
   lastUsedAt DateTime?
   expiresAt  DateTime?
   revokedAt  DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -85,7 +85,10 @@ enum MemoryType {
   INSTRUCTION
   DECISION
   PROFILE
+  RELATIONSHIP
   PROJECT_CONTEXT
+  BEHAVIOR
+  TEMPORARY
   OTHER
 }
 
@@ -93,37 +96,60 @@ enum MemoryStatus {
   ACTIVE
   SUPERSEDED
   ARCHIVED
+  DELETED
+  EXPIRED
 }
 
 // Memory belonging to an end-user of a developer's application
 model Memory {
-  id             String       @id @default(cuid())
+  id             String @id @default(cuid())
+  organizationId String
   projectId      String
   externalUserId String
+  namespace      String @default("default")
 
-  content        String       @db.Text
+  content String @db.Text
 
-  // Example dimension only; match this to the chosen embedding model.
-  embedding      Unsupported("vector(1536)")?
+  // 1536 dimension vector for embeddings (e.g. text-embedding-3-small)
+  embedding Unsupported("vector(1536)")?
 
-  type           MemoryType   @default(FACT)
-  status         MemoryStatus @default(ACTIVE)
+  type   MemoryType   @default(FACT)
+  status MemoryStatus @default(ACTIVE)
 
-  importance     Float        @default(0.5)
-  confidence     Float        @default(1.0)
+  importance Float @default(0.5)
+  confidence Float @default(1.0)
 
   sourceType     String?
   sourceId       String?
   metadata       Json?
+  lastAccessedAt DateTime?
   expiresAt      DateTime?
 
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versions     MemoryVersion[]
 
-  @@index([projectId, externalUserId, status, createdAt])
+  @@index([organizationId, projectId, externalUserId, status])
+  @@index([projectId, externalUserId, namespace, status])
   @@index([projectId, status])
   @@index([expiresAt])
   @@map("memories")
+}
+
+// Historical audit log and superseded versions of memories
+model MemoryVersion {
+  id              String   @id @default(cuid())
+  memoryId        String
+  content         String   @db.Text
+  previousContent String?  @db.Text
+  changeReason    String?
+  createdAt       DateTime @default(now())
+
+  memory Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+
+  @@index([memoryId])
+  @@map("memory_versions")
 }
