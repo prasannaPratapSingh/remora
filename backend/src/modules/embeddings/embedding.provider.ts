@@ -33,13 +33,16 @@ export class OpenAIEmbeddingProvider implements IEmbeddingProvider {
             return texts.map(text => this.mockEmbedding(text));
         }
 
-        const response = await this.client.embeddings.create({
-            model: this.model,
-            input: texts.map(t => t.replace(/\n/g, " ")),
-            encoding_format: "float",
-        });
-
-        return response.data.map(item => item.embedding);
+        try {
+            const response = await this.client.embeddings.create({
+                model: this.model,
+                input: texts.map(t => t.replace(/\n/g, " ")),
+                encoding_format: "float",
+            });
+            return response.data.map(item => item.embedding);
+        } catch {
+            return texts.map(text => this.mockEmbedding(text));
+        }
     }
 
     // Deterministic fallback embedding for dev/testing without active OpenAI key

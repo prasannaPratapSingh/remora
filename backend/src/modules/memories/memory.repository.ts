@@ -39,13 +39,28 @@ export interface VectorSearchResult {
     similarity: number;
 }
 
+const VALID_MEMORY_TYPES = new Set([
+    "FACT", "PREFERENCE", "GOAL", "INSTRUCTION", "DECISION",
+    "PROFILE", "PROJECT_CONTEXT", "OTHER", "RELATIONSHIP", "BEHAVIOR", "TEMPORARY"
+]);
+
+export function normalizeMemoryType(type?: any): MemoryType {
+    if (!type) return "FACT";
+    const upper = String(type).toUpperCase().trim();
+    if (VALID_MEMORY_TYPES.has(upper)) return upper as MemoryType;
+    if (upper === "SEMANTIC") return "PREFERENCE";
+    if (upper === "EPISODIC") return "PROJECT_CONTEXT";
+    if (upper === "PROCEDURAL") return "INSTRUCTION";
+    return "FACT";
+}
+
 export class MemoryRepository {
     /**
      * Create memory with pgvector embedding
      */
     async create(data: CreateMemoryParams): Promise<Memory> {
         const namespace = data.namespace || "default";
-        const type = data.type || "FACT";
+        const type = normalizeMemoryType(data.type);
         const status = data.status || "ACTIVE";
         const importance = data.importance ?? 0.5;
         const confidence = data.confidence ?? 1.0;
@@ -215,7 +230,7 @@ export class MemoryRepository {
                     content: params.content ?? existing.content,
                     importance: params.importance ?? existing.importance,
                     confidence: params.confidence ?? existing.confidence,
-                    type: params.type ?? existing.type,
+                    type: params.type ? normalizeMemoryType(params.type) : existing.type,
                     status: params.status ?? existing.status,
                     updatedAt: new Date()
                 }

@@ -3,14 +3,23 @@ import memoryRoutes from "./modules/memories/memory.routes";
 import apiKeyRoutes from "./modules/apiKeys/apiKey.routes";
 import projectRoutes from "./modules/projects/project.routes";
 import organizationRoutes from "./modules/organizations/organization.routes";
+import authRoutes from "./modules/auth/auth.routes";
 import { clerkWebhookHandler } from "./modules/webhooks/clerk.webhook";
 import errorHandler from "./middlewares/errorHandler";
 import ApiError from "./utils/ApiError";
 import { openApiSpec } from "./docs/openapi";
 
+import cors from "cors";
+
 const app: Express = express();
 
 // Core middlewares
+app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "*"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
+}));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,6 +57,7 @@ app.get("/docs", (_: Request, res: Response) => {
 });
 
 // Developer platform routes
+app.use("/api/auth", authRoutes);
 app.use("/api/keys", apiKeyRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/organizations", organizationRoutes);
