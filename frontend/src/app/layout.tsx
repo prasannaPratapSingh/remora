@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import "./globals.css";
@@ -15,10 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 const newsreader = Newsreader({
-  variable: "--font-serif",
+  variable: "--font-newsreader",
   subsets: ["latin"],
   style: ["normal", "italic"],
 });
+
+import { cooperBt } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Remora — The Long-Term Memory Layer for AI Agents",
@@ -33,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const htmlContent = (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${cooperBt.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>

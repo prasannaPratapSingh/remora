@@ -2,7 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'motion/react';
+import { cooperBt } from './fonts';
 import { Navbar } from '../components/Navbar';
+import { HeroMemoryFlow } from '../components/HeroMemoryFlow';
+import { AtlanHeroArchitecture } from '../components/AtlanHeroArchitecture';
 import { 
   BrainCircuit, 
   ArrowRight, 
@@ -22,6 +26,18 @@ import {
   Code2
 } from 'lucide-react';
 
+const headlineLine2 = [
+  { text: 'Give' },
+  { text: 'your' },
+  { text: 'AI' },
+  { text: 'agents' },
+];
+
+const headlineLine3 = [
+  { text: 'continuous' },
+  { text: 'memory.' },
+];
+
 export default function LandingPage() {
   const [activeCodeTab, setActiveCodeTab] = useState<'ts' | 'py'>('ts');
   const [copiedCode, setCopiedCode] = useState(false);
@@ -36,12 +52,15 @@ const remora = new RemoraClient({
 await remora.add({
   externalUserId: "user_alex",
   content: "User strictly prefers Tailwind and TypeScript for web projects.",
-  type: "SEMANTIC",
+  type: "PREFERENCE",
   importance: 0.95
 });
 
 // 2. Retrieve formatted context for your LLM system prompt
-const context = await remora.context("user_alex");
+const context = await remora.context({
+  userId: "user_alex",
+  query: "recommend a frontend framework"
+});
 // Injects: <user_context>[User: user_alex] 1. ...</user_context>`;
 
   const pyCode = `from remora import RemoraClient
@@ -63,7 +82,7 @@ results = remora.search(
 )
 
 # 3. Compact context injection
-prompt_ctx = remora.context("user_alex")`;
+prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
 
   const copyCode = () => {
     navigator.clipboard.writeText(activeCodeTab === 'ts' ? tsCode : pyCode);
@@ -72,86 +91,324 @@ prompt_ctx = remora.context("user_alex")`;
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+    <div style={{ 
+      minHeight: '100vh', 
+      width: '100%',
+      backgroundColor: '#FAFAF9', 
+      color: '#0f172a', 
+      display: 'flex', 
+      flexDirection: 'column'
+    }}>
+      {/* Sticky Glassmorphic Navbar */}
+      <Navbar theme="light" />
 
-      {/* Hero Section */}
-      <section style={{
-        padding: '80px 24px 60px',
-        maxWidth: '1240px',
-        margin: '0 auto',
-        width: '100%',
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-      }}>
-        {/* Release Pill */}
-        <div style={{
-          display: 'inline-flex',
+      {/* Hero Section Container with Dithered Cloudscape & Editorial Background */}
+      <div className="remora-hero-wrapper">
+        {/* Dithered Cloudscape Background Layer */}
+        <div className="remora-hero-bg-clouds" />
+
+        {/* Subtle Matrix Grid Overlay */}
+        <div className="remora-hero-grid-overlay" />
+
+        {/* Soft Ambient Text Glow */}
+        <div className="remora-hero-glow" />
+
+        <section style={{
+          padding: '116px 24px 0',
+          maxWidth: '1240px',
+          margin: '0 auto',
+          width: '100%',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          gap: '8px',
-          padding: '6px 14px',
-          borderRadius: '9999px',
-          backgroundColor: 'rgba(99, 102, 241, 0.12)',
-          border: '1px solid rgba(99, 102, 241, 0.3)',
-          marginBottom: '28px'
+          position: 'relative',
+          zIndex: 2
         }}>
-          <Sparkles size={14} color="var(--accent-indigo)" />
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#c7d2fe' }}>
-            Remora v1.0 — Enterprise AI Memory Infrastructure
-          </span>
-          <span style={{ color: 'var(--accent-cyan)', fontSize: '12px' }}>→</span>
+          {/* Top Hero Content Area */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '820px', width: '100%', paddingTop: '8px' }}>
+            {/* Main Headline: Cooper BT with Word-by-Word Staggering */}
+            <h1 
+              className={`hero-cooper-title ${cooperBt.className}`}
+              style={{
+                fontFamily: `${cooperBt.style.fontFamily}, 'Cooper BT', Georgia, serif`,
+                fontSize: 'clamp(28px, 3.6vw, 48px)',
+                fontWeight: 400,
+                color: '#0f172a',
+                marginBottom: '18px',
+                lineHeight: '1.36',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              <span style={{ display: 'inline-block' }}>
+                <motion.span
+                  initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.85, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ display: 'inline-block', marginRight: '0.28em' }}
+                >
+                  Stop
+                </motion.span>
+                <motion.span
+                  initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.85, delay: 0.20, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ display: 'inline-block', marginRight: '0.28em' }}
+                >
+                  building
+                </motion.span>
+                {/* user_memories and tables. guaranteed in the same line */}
+                <span style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+                  <span
+                    style={{
+                      position: 'relative',
+                      display: 'inline-block',
+                      marginRight: '0.28em',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.84em',
+                      fontWeight: 600,
+                      lineHeight: '1.25',
+                      verticalAlign: 'baseline'
+                    }}
+                  >
+                    {/* Base text layer: floats in cleanly with the headline */}
+                    <motion.span
+                      initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      transition={{ duration: 0.85, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      style={{
+                        display: 'inline-block',
+                        padding: '2px 10px',
+                        color: '#1e293b'
+                      }}
+                    >
+                      user_memories
+                    </motion.span>
+
+                    {/* Overlay layer: Blue box + crisp white text sweeping left-to-right via clipPath */}
+                    <motion.span
+                      initial={{ clipPath: 'inset(0 100% 0 0 round 5px)' }}
+                      animate={{ clipPath: 'inset(0 0% 0 0 round 5px)' }}
+                      transition={{ duration: 0.65, delay: 0.48, ease: [0.16, 1, 0.3, 1] }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        padding: '2px 10px',
+                        borderRadius: '5px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 10px rgba(37, 99, 235, 0.35)',
+                        pointerEvents: 'none',
+                        zIndex: 2
+                      }}
+                    >
+                      user_memories
+                    </motion.span>
+                  </span>
+                  <motion.span
+                    initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.85, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ display: 'inline-block' }}
+                  >
+                    tables.
+                  </motion.span>
+                </span>
+              </span>
+              <br />
+              {/* Line 2: Give your AI agents */}
+              <span style={{ display: 'inline-block' }}>
+                {headlineLine2.map((item, idx) => (
+                  <motion.span
+                    key={idx}
+                    initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{
+                      duration: 0.85,
+                      delay: 0.48 + idx * 0.08,
+                      ease: [0.16, 1, 0.3, 1]
+                    }}
+                    style={{
+                      display: 'inline-block',
+                      marginRight: '0.28em'
+                    }}
+                  >
+                    {item.text}
+                  </motion.span>
+                ))}
+              </span>
+              <br />
+              {/* Line 3: continuous memory. */}
+              <span style={{ display: 'inline-block', fontSize: 'calc(1em - 5px)' }}>
+                {headlineLine3.map((item, idx) => (
+                  <motion.span
+                    key={idx}
+                    initial={{ opacity: 0, y: 22, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{
+                      duration: 0.85,
+                      delay: 0.80 + idx * 0.08,
+                      ease: [0.16, 1, 0.3, 1]
+                    }}
+                    className={`font-cooper-italic ${cooperBt.className}`}
+                    style={{
+                      display: 'inline-block',
+                      marginRight: idx === 0 ? '0.28em' : '0',
+                      fontFamily: `${cooperBt.style.fontFamily}, 'Cooper BT', Georgia, serif`,
+                      fontStyle: 'italic',
+                      color: '#3074FE',
+                      fontWeight: 400
+                    }}
+                  >
+                    {item.text}
+                  </motion.span>
+                ))}
+              </span>
+            </h1>
+
+            {/* Subheading: Single concise line with balanced whitespace */}
+            <motion.p 
+              initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.9, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                fontSize: 'clamp(17.5px, 1.45vw, 20px)',
+                color: '#1e293b',
+                fontWeight: 450,
+                maxWidth: '680px',
+                lineHeight: '1.6',
+                marginBottom: '38px'
+              }}
+            >
+              Self-evolving long-term memory for LLMs and autonomous fleets <br /> with sub-15ms pgvector retrieval.
+            </motion.p>
+
+            {/* Focused CTAs using Unified Decided System */}
+            <motion.div 
+              initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.9, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '48px' }}
+            >
+              <Link 
+                href="/docs" 
+                style={{
+                  color: '#0f172a',
+                  fontSize: '14.5px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  borderBottom: '2px solid rgba(15, 23, 42, 0.25)',
+                  paddingBottom: '2px',
+                  transition: 'border-color 0.15s ease'
+                }}
+              >
+                <span>See How it Works</span>
+                <span style={{ color: '#3074FE' }}>→</span>
+              </Link>
+
+              <Link 
+                href="/dashboard" 
+                className="remora-cta-btn"
+                style={{ height: '44px', paddingLeft: '22px', paddingRight: '16px', fontSize: '14.5px' }}
+              >
+                <span>Access Memory Console</span>
+                <ArrowRight size={16} />
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Bottom: Centered Architecture Visualizer Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 1.0, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
+            style={{ width: '100%' }}
+          >
+            <AtlanHeroArchitecture />
+          </motion.div>
+        </section>
+      </div>
+
+      {/* Metrics Strip */}
+      <section style={{
+        borderTop: '1px solid rgba(15, 23, 42, 0.08)',
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        backgroundColor: '#ffffff',
+        padding: '36px 24px',
+        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+      }}>
+        <div style={{
+          maxWidth: '1240px',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '24px',
+          textAlign: 'center'
+        }}>
+          <div>
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.02em' }}>1536-dim</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Neon pgvector HNSW Index</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#059669', letterSpacing: '-0.02em' }}>&lt; 15 ms</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>p95 Semantic Retrieval</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#4f46e5', letterSpacing: '-0.02em' }}>0.93 sim</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Auto-Deduplication Threshold</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '32px', fontWeight: 700, color: '#0891b2', letterSpacing: '-0.02em' }}>0 ms</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Added Chat Latency (BullMQ)</div>
+          </div>
         </div>
+      </section>
 
-        {/* Editorial Serif Main Headline */}
-        <h1 className="editorial-title" style={{
-          fontSize: 'clamp(40px, 6vw, 68px)',
-          color: '#ffffff',
-          maxWidth: '920px',
-          marginBottom: '20px',
-          lineHeight: '1.1'
+      {/* Live SDK Integration Section */}
+      <section style={{ padding: '80px 24px 60px', maxWidth: '1080px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
+        <span style={{
+          fontSize: '11px',
+          fontWeight: 600,
+          color: '#4f46e5',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          padding: '4px 12px',
+          borderRadius: '9999px',
+          display: 'inline-block',
+          marginBottom: '14px'
         }}>
-          Give your AI agents <span className="font-serif-italic" style={{ color: '#a5b4fc' }}>persistent</span>, self-evolving memory.
-        </h1>
-
-        <p style={{
-          fontSize: 'clamp(16px, 2vw, 19px)',
-          color: 'var(--text-secondary)',
-          maxWidth: '680px',
-          lineHeight: '1.6',
-          marginBottom: '36px'
-        }}>
-          The long-term memory layer for LLM applications. Automatically extract, vector-index, deduplicate, and recall structured user knowledge across sessions with zero added chat latency.
+          Developer Experience
+        </span>
+        <h2 className="editorial-title" style={{ fontSize: '36px', color: '#0f172a', marginBottom: '12px' }}>
+          Three lines of code to remember everything
+        </h2>
+        <p style={{ fontSize: '15px', color: '#475569', maxWidth: '580px', margin: '0 auto 36px', lineHeight: '1.6' }}>
+          Integrates cleanly with OpenAI, Anthropic, LangChain, or raw Next.js Server Actions.
         </p>
 
-        {/* Primary CTA Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '48px' }}>
-          <Link href="/auth/signup" className="btn-primary" style={{ padding: '12px 24px', fontSize: '15px' }}>
-            <span>Create Developer Workspace</span>
-            <ArrowRight size={16} />
-          </Link>
-          <Link href="/dashboard" className="btn-secondary" style={{ padding: '12px 20px', fontSize: '15px' }}>
-            <span>Open Live Console Demo</span>
-          </Link>
-          <Link href="/docs" className="btn-secondary" style={{ padding: '12px 20px', fontSize: '15px' }}>
-            <span>Read Docs</span>
-          </Link>
-        </div>
-
-        {/* Interactive Code & Architecture Terminal Card */}
-        <div className="glass-panel" style={{
+        {/* Terminal Card */}
+        <div style={{
           width: '100%',
           maxWidth: '860px',
+          margin: '0 auto',
           textAlign: 'left',
           overflow: 'hidden',
-          boxShadow: '0 20px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(99, 102, 241, 0.15)'
+          borderRadius: '16px',
+          backgroundColor: '#0f172a',
+          boxShadow: '0 24px 60px -15px rgba(15, 23, 42, 0.25), 0 0 1px 1px rgba(255, 255, 255, 0.1)'
         }}>
           {/* Window Header */}
           <div style={{
             padding: '12px 18px',
-            backgroundColor: 'rgba(13, 18, 29, 0.95)',
-            borderBottom: '1px solid var(--border-subtle)',
+            backgroundColor: '#1e293b',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
@@ -160,7 +417,7 @@ prompt_ctx = remora.context("user_alex")`;
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '8px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ fontSize: '12px', color: '#94a3b8', marginLeft: '8px', fontFamily: 'var(--font-mono)' }}>
                 remora-agent-integration.{activeCodeTab}
               </span>
             </div>
@@ -174,8 +431,8 @@ prompt_ctx = remora.context("user_alex")`;
                   fontSize: '11px',
                   fontWeight: 600,
                   border: 'none',
-                  backgroundColor: activeCodeTab === 'ts' ? 'rgba(99, 102, 241, 0.25)' : 'transparent',
-                  color: activeCodeTab === 'ts' ? '#c7d2fe' : 'var(--text-muted)',
+                  backgroundColor: activeCodeTab === 'ts' ? '#334155' : 'transparent',
+                  color: activeCodeTab === 'ts' ? '#ffffff' : '#94a3b8',
                   cursor: 'pointer'
                 }}
               >
@@ -189,8 +446,8 @@ prompt_ctx = remora.context("user_alex")`;
                   fontSize: '11px',
                   fontWeight: 600,
                   border: 'none',
-                  backgroundColor: activeCodeTab === 'py' ? 'rgba(6, 182, 212, 0.25)' : 'transparent',
-                  color: activeCodeTab === 'py' ? '#a5f3fc' : 'var(--text-muted)',
+                  backgroundColor: activeCodeTab === 'py' ? '#334155' : 'transparent',
+                  color: activeCodeTab === 'py' ? '#ffffff' : '#94a3b8',
                   cursor: 'pointer'
                 }}
               >
@@ -198,11 +455,21 @@ prompt_ctx = remora.context("user_alex")`;
               </button>
               <button
                 onClick={copyCode}
-                className="btn-secondary"
-                style={{ padding: '4px 8px', fontSize: '11px', marginLeft: '6px' }}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '11px',
+                  marginLeft: '6px',
+                  backgroundColor: '#334155',
+                  border: 'none',
+                  borderRadius: '5px',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
                 title="Copy code"
               >
-                {copiedCode ? <Check size={12} color="var(--accent-emerald)" /> : <Copy size={12} />}
+                {copiedCode ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
               </button>
             </div>
           </div>
@@ -210,139 +477,155 @@ prompt_ctx = remora.context("user_alex")`;
           {/* Code Window */}
           <pre style={{
             padding: '24px',
-            backgroundColor: 'rgba(7, 9, 14, 0.95)',
+            backgroundColor: '#0f172a',
             fontSize: '13px',
             fontFamily: 'var(--font-mono)',
-            color: activeCodeTab === 'ts' ? '#e0e7ff' : '#cffafe',
+            color: activeCodeTab === 'ts' ? '#e2e8f0' : '#cffafe',
             lineHeight: '1.65',
-            overflowX: 'auto'
+            overflowX: 'auto',
+            margin: 0
           }}>
             {activeCodeTab === 'ts' ? tsCode : pyCode}
           </pre>
         </div>
       </section>
 
-      {/* Social Proof & Metrics Strip */}
-      <section style={{
-        borderTop: '1px solid var(--border-subtle)',
-        borderBottom: '1px solid var(--border-subtle)',
-        backgroundColor: 'rgba(13, 18, 29, 0.4)',
-        padding: '28px 24px'
-      }}>
-        <div style={{
-          maxWidth: '1240px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '24px',
-          textAlign: 'center'
-        }}>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#ffffff' }}>1536-dim</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>HNSW Vector pgvector Index</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-emerald)' }}>42 ms</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>p95 Semantic Retrieval</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-indigo)' }}>0.93 sim</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Auto-Deduplication & Merge</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-cyan)' }}>0 ms</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Added Chat Latency (BullMQ)</div>
-          </div>
-        </div>
-      </section>
-
       {/* Features Grid */}
       <section id="features" style={{ padding: '80px 24px', maxWidth: '1240px', margin: '0 auto', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-          <span className="badge badge-indigo" style={{ marginBottom: '10px' }}>Capabilities</span>
-          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px' }}>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            color: '#4f46e5',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            padding: '4px 12px',
+            borderRadius: '9999px',
+            display: 'inline-block',
+            marginBottom: '10px'
+          }}>
+            Capabilities
+          </span>
+          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#0f172a', marginBottom: '12px' }}>
             Built for mission-critical AI applications
           </h2>
-          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', maxWidth: '580px', margin: '0 auto' }}>
+          <p style={{ fontSize: '16px', color: '#475569', maxWidth: '580px', margin: '0 auto' }}>
             Everything needed to manage persistent agent state, tenant isolation, and prompt context.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
           {/* Card 1 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(99, 102, 241, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Layers size={22} color="var(--accent-indigo)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <Layers size={22} color="#4f46e5" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               4-Tier Knowledge Distillation
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-              Memories are classified into Semantic (traits), Facts (specifications), Procedural (workflows), and Episodic (events), preventing context pollution.
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
+              Memories are classified into Semantic (traits), Facts (specs), Procedural (rules), and Episodic (events), preventing context pollution.
             </p>
           </div>
 
           {/* Card 2 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Sparkles size={22} color="var(--accent-cyan)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <Sparkles size={22} color="#0891b2" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               Adaptive Hybrid Ranker
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
               Cosine similarity is weighted with importance scores, confidence ratings, and exponential recency decay so critical facts never get lost.
             </p>
           </div>
 
           {/* Card 3 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Zap size={22} color="var(--accent-emerald)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <Zap size={22} color="#059669" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               Non-Blocking 202 Ingestion
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
               Offload extraction and embedding creation to background BullMQ workers. Your chatbot responds instantly while memories index in background.
             </p>
           </div>
 
           {/* Card 4 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <ShieldCheck size={22} color="var(--accent-amber)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <ShieldCheck size={22} color="#d97706" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               GDPR & Privacy Compliance
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
               Built-in Article 17 "Forget User" cascade deletion and Article 20 JSON data portability export endpoints ready for enterprise audits.
             </p>
           </div>
 
           {/* Card 5 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <KeyRound size={22} color="var(--accent-purple)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <KeyRound size={22} color="#7c3aed" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               Two-Tier Auth & Key Hashing
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-              Developers manage workspaces via session auth, while AI agents communicate statelessly via SHA-256 hashed Bearer keys (<code style={{ color: '#c7d2fe' }}>rl_live_*</code>).
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
+              Developers manage workspaces via session auth, while AI agents communicate statelessly via SHA-256 hashed Bearer keys (<code style={{ color: '#4f46e5' }}>rl_live_*</code>).
             </p>
           </div>
 
           {/* Card 6 */}
-          <div className="glass-panel glass-panel-hover" style={{ padding: '32px' }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(244, 63, 94, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Database size={22} color="var(--accent-rose)" />
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid rgba(15, 23, 42, 0.08)',
+            padding: '32px',
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
+          }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(244, 63, 94, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
+              <Database size={22} color="#e11d48" />
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
               Strict Multi-Tenant Scoping
             </h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
               Composite SQL scoping by Organization, Project, and External User ID guarantees that zero cross-tenant vector leakage ever occurs.
             </p>
           </div>
@@ -352,67 +635,119 @@ prompt_ctx = remora.context("user_alex")`;
       {/* Pricing Section */}
       <section id="pricing" style={{
         padding: '80px 24px',
-        backgroundColor: 'rgba(13, 18, 29, 0.4)',
-        borderTop: '1px solid var(--border-subtle)',
-        borderBottom: '1px solid var(--border-subtle)'
+        backgroundColor: '#f1f5f9',
+        borderTop: '1px solid rgba(15, 23, 42, 0.08)',
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)'
       }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
-          <span className="badge badge-emerald" style={{ marginBottom: '10px' }}>Simple Pricing</span>
-          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#ffffff', marginBottom: '12px' }}>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            color: '#059669',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            padding: '4px 12px',
+            borderRadius: '9999px',
+            display: 'inline-block',
+            marginBottom: '10px'
+          }}>
+            Simple Pricing
+          </span>
+          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#0f172a', marginBottom: '12px' }}>
             Start free, scale seamlessly
           </h2>
-          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '48px' }}>
+          <p style={{ fontSize: '16px', color: '#475569', marginBottom: '48px' }}>
             Transparent developer pricing designed to grow with your agent traffic.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', textAlign: 'left' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', textAlign: 'left' }}>
             {/* Free Tier */}
-            <div className="glass-panel" style={{ padding: '32px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Developer</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>For prototypes and side projects.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#ffffff', marginBottom: '20px' }}>$0 <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>/ forever</span></div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Up to 100,000 vector memories</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Full TypeScript & Python SDKs</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Interactive Search Playground</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Community Discord Support</li>
+            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Developer</h3>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For prototypes and side projects.</p>
+              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>$0 <span style={{ fontSize: '14px', color: '#64748b' }}>/ forever</span></div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Up to 100,000 vector memories</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Full TypeScript & Python SDKs</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Interactive Search Playground</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Community Support</li>
               </ul>
-              <Link href="/auth/signup" className="btn-secondary" style={{ width: '100%', padding: '10px', textAlign: 'center' }}>
+              <Link 
+                href="/auth/signup" 
+                style={{ 
+                  display: 'block', 
+                  width: '100%', 
+                  padding: '11px', 
+                  textAlign: 'center', 
+                  backgroundColor: '#f1f5f9', 
+                  color: '#0f172a', 
+                  borderRadius: '8px', 
+                  fontWeight: 500, 
+                  textDecoration: 'none' 
+                }}
+              >
                 Get Started
               </Link>
             </div>
 
             {/* Pro Tier */}
-            <div className="glass-panel" style={{ padding: '32px', borderColor: 'var(--border-highlight)', backgroundColor: 'rgba(22, 32, 53, 0.85)' }}>
+            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '2px solid #4f46e5', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.12)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Production</h3>
-                <span className="badge badge-indigo">Most Popular</span>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Production</h3>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#4f46e5', backgroundColor: 'rgba(99, 102, 241, 0.1)', padding: '2px 8px', borderRadius: '9999px' }}>Most Popular</span>
               </div>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>For production AI agents and apps.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#ffffff', marginBottom: '20px' }}>$49 <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>/ month</span></div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> 2,000,000 vector memories</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Asynchronous BullMQ Ingestion</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Hot Redis 7 Context Caching</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Automated TTL Expiration Cron</li>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For production AI agents and apps.</p>
+              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>$49 <span style={{ fontSize: '14px', color: '#64748b' }}>/ month</span></div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> 2,000,000 vector memories</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Asynchronous BullMQ Ingestion</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Hot Redis 7 Context Caching</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Automated TTL Expiration Cron</li>
               </ul>
-              <Link href="/auth/signup" className="btn-primary" style={{ width: '100%', padding: '10px', textAlign: 'center' }}>
+              <Link 
+                href="/auth/signup" 
+                style={{ 
+                  display: 'block', 
+                  width: '100%', 
+                  padding: '11px', 
+                  textAlign: 'center', 
+                  backgroundColor: '#0f172a', 
+                  color: '#ffffff', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  textDecoration: 'none' 
+                }}
+              >
                 Start 14-Day Free Trial
               </Link>
             </div>
 
             {/* Enterprise Tier */}
-            <div className="glass-panel" style={{ padding: '32px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>Enterprise</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>For large scale fleets & VPCs.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#ffffff', marginBottom: '20px' }}>Custom</div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Unlimited memories & projects</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> Dedicated Neon pgvector VPC</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> 99.99% Uptime SLA & BAA</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="var(--accent-emerald)" /> SAML SSO & Dedicated Architect</li>
+            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Enterprise</h3>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For large scale fleets & VPCs.</p>
+              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>Custom</div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Unlimited memories & projects</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Dedicated Neon pgvector VPC</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> 99.99% Uptime SLA & BAA</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> SAML SSO & Dedicated Architect</li>
               </ul>
-              <Link href="/auth/signup" className="btn-secondary" style={{ width: '100%', padding: '10px', textAlign: 'center' }}>
+              <Link 
+                href="/auth/signup" 
+                style={{ 
+                  display: 'block', 
+                  width: '100%', 
+                  padding: '11px', 
+                  textAlign: 'center', 
+                  backgroundColor: '#f1f5f9', 
+                  color: '#0f172a', 
+                  borderRadius: '8px', 
+                  fontWeight: 500, 
+                  textDecoration: 'none' 
+                }}
+              >
                 Contact Enterprise
               </Link>
             </div>
@@ -444,48 +779,48 @@ prompt_ctx = remora.context("user_alex")`;
               }}>
                 <BrainCircuit size={16} color="#ffffff" />
               </div>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>Remora</span>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Remora</span>
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', maxWidth: '280px', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '280px', lineHeight: '1.5' }}>
               Open-core AI memory infrastructure layer for production agents and LLMs.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '48px', fontSize: '13px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#ffffff' }}>Product</strong>
-              <Link href="/#features" style={{ color: 'var(--text-secondary)' }}>Features</Link>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>Documentation</Link>
-              <Link href="/#pricing" style={{ color: 'var(--text-secondary)' }}>Pricing</Link>
-              <Link href="/dashboard" style={{ color: 'var(--text-secondary)' }}>Console</Link>
+              <strong style={{ color: '#0f172a' }}>Product</strong>
+              <Link href="/#features" style={{ color: '#64748b', textDecoration: 'none' }}>Features</Link>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Documentation</Link>
+              <Link href="/#pricing" style={{ color: '#64748b', textDecoration: 'none' }}>Pricing</Link>
+              <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Console</Link>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#ffffff' }}>SDKs</strong>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>TypeScript (@remora/sdk)</Link>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>Python (remora-ai)</Link>
-              <a href="http://localhost:4000/docs" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)' }}>
+              <strong style={{ color: '#0f172a' }}>SDKs</strong>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>TypeScript (@remora/sdk)</Link>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Python (remora-ai)</Link>
+              <a href="http://localhost:4000/docs" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none' }}>
                 OpenAPI Reference
               </a>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#ffffff' }}>Legal</strong>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>GDPR Compliance</Link>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>Privacy Policy</Link>
-              <Link href="/docs" style={{ color: 'var(--text-secondary)' }}>Terms of Service</Link>
+              <strong style={{ color: '#0f172a' }}>Legal</strong>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>GDPR Compliance</Link>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</Link>
+              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</Link>
             </div>
           </div>
         </div>
 
         <div style={{
           paddingTop: '24px',
-          borderTop: '1px solid var(--border-subtle)',
+          borderTop: '1px solid rgba(15, 23, 42, 0.08)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           fontSize: '12px',
-          color: 'var(--text-muted)'
+          color: '#64748b'
         }}>
           <span>© 2026 Remora AI Inc. All rights reserved.</span>
           <span>Crafted with Neon pgvector, Redis, and Next.js.</span>

@@ -2,127 +2,295 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BrainCircuit, ArrowRight, User, LogOut, LayoutDashboard } from 'lucide-react';
-import { authService, AuthUser } from '../lib/auth';
+import { ArrowUpRight, LayoutDashboard } from 'lucide-react';
+import { useUser, UserButton } from '@clerk/nextjs';
 
-export const Navbar: React.FC = () => {
-  const [user, setUser] = useState<AuthUser | null>(null);
+interface NavbarProps {
+  theme?: 'light' | 'dark';
+}
+
+export const Navbar: React.FC<NavbarProps> = () => {
+  const { isSignedIn } = useUser();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    setUser(authService.getUser());
+    const handleScroll = () => {
+      // Morph between full-width at top (<= 20px) and floating pill (> 20px)
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    // Automatically close mobile menu if viewport widens to desktop (where hamburger is hidden)
+    const mediaQuery = window.matchMedia('(min-width: 1025px)');
+    const handleMediaChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    // Outside click dismisses menu
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.remora-liquid-header')) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleDocumentClick);
+
+    if (mediaQuery.matches) {
+      setMobileMenuOpen(false);
+    }
+    mediaQuery.addEventListener('change', handleMediaChange);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('click', handleDocumentClick);
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
   }, []);
 
   return (
-    <header style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      backgroundColor: 'rgba(7, 9, 14, 0.75)',
-      borderBottom: '1px solid var(--border-subtle)'
-    }}>
-      <div style={{
-        maxWidth: '1240px',
-        margin: '0 auto',
-        padding: '0 24px',
-        height: '68px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-          <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '9px',
-            background: 'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(99, 102, 241, 0.4)'
-          }}>
-            <BrainCircuit size={19} color="#ffffff" />
+    <header className={`remora-liquid-header ${isScrolled ? 'scrolled' : ''}`}>
+      <div className="remora-navbar">
+        <div className="remora-navbar-inner">
+          {/* Left: Bold "R" Brand Logo */}
+          <Link href="/" className="remora-logo-link" aria-label="Remora Home">
+            <div className="remora-logo-mark">
+              R
+            </div>
+          </Link>
+
+          {/* Center: Desktop Navigation Links */}
+          <nav className="remora-nav-links" aria-label="Main Navigation">
+            <Link href="/#features" className="remora-nav-link">
+              Features
+            </Link>
+            <Link href="/#architecture" className="remora-nav-link">
+              Architecture
+            </Link>
+            <Link href="/docs" className="remora-nav-link">
+              Documentation
+            </Link>
+            <Link href="/#pricing" className="remora-nav-link">
+              Pricing
+            </Link>
+          </nav>
+
+          {/* Right: Authentication & CTA Actions + Hamburger */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {isSignedIn ? (
+              /* Signed In State: Exactly ONE Profile avatar + Console button */
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Link 
+                  href="/dashboard" 
+                  className="remora-cta-secondary remora-desktop-cta"
+                  style={{ height: '36px', padding: '0 14px' }}
+                  id="nav-console-btn"
+                >
+                  <LayoutDashboard size={14} />
+                  <span>Console</span>
+                </Link>
+
+                <div 
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '2px',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(15, 23, 42, 0.12)',
+                    background: '#ffffff',
+                    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.06)',
+                    transition: 'all 0.15s ease-out'
+                  }}
+                  id="nav-profile-container"
+                >
+                  <UserButton
+                    userProfileMode="modal"
+                    appearance={{
+                      elements: {
+                        avatarBox: {
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '9999px',
+                          border: '1px solid rgba(15, 23, 42, 0.15)',
+                          transition: 'transform 0.15s ease',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                          }
+                        },
+                        userButtonTrigger: {
+                          borderRadius: '9999px',
+                          padding: '0',
+                          '&:focus': {
+                            boxShadow: '0 0 0 2px #3074FE',
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              /* Signed Out State: Login & Sign Up buttons (hidden on mobile via remora-desktop-cta) */
+              <div className="remora-desktop-cta" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Link 
+                  href="/auth/signin" 
+                  className="remora-cta-secondary"
+                  id="nav-login-btn"
+                >
+                  <span>Login</span>
+                </Link>
+                <Link 
+                  href="/auth/signup" 
+                  className="remora-cta-btn"
+                  id="nav-signup-btn"
+                >
+                  <span>Sign Up</span>
+                  <ArrowUpRight size={15} />
+                </Link>
+              </div>
+            )}
+
+            {/* Pikaicons Hamburger Button with Smooth Morph to X */}
+            <button
+              type="button"
+              className={`remora-burger-btn ${mobileMenuOpen ? 'open' : ''}`}
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none"
+                className="remora-burger-svg"
+              >
+                {/* Top Line: center is (12, 6) */}
+                <path 
+                  className="remora-burger-line remora-burger-line-top"
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  d="M4 6L20 6" 
+                  style={{ transformOrigin: '12px 6px' }}
+                />
+                {/* Middle Line: center is (12, 12) */}
+                <path 
+                  className="remora-burger-line remora-burger-line-middle"
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  d="M4 12L20 12" 
+                  style={{ transformOrigin: '12px 12px' }}
+                />
+                {/* Bottom Line: center is (12, 18) */}
+                <path 
+                  className="remora-burger-line remora-burger-line-bottom"
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  d="M4 18L20 18" 
+                  style={{ transformOrigin: '12px 18px' }}
+                />
+              </svg>
+            </button>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '19px', fontWeight: 700, letterSpacing: '-0.02em', color: '#ffffff' }}>
-              Remora
-            </span>
-            <span className="badge badge-indigo" style={{ fontSize: '9px', padding: '1px 6px' }}>v1.0</span>
-          </div>
+        </div>
+      </div>
+
+      {/* Liquid Glass Mobile Drawer Dropdown */}
+      <div className={`remora-mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <Link 
+          href="/#features" 
+          className="remora-mobile-nav-link"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span>Features</span>
+          <span style={{ color: '#94a3b8', fontSize: '13px' }}>→</span>
+        </Link>
+        <Link 
+          href="/#architecture" 
+          className="remora-mobile-nav-link"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span>Architecture</span>
+          <span style={{ color: '#94a3b8', fontSize: '13px' }}>→</span>
+        </Link>
+        <Link 
+          href="/docs" 
+          className="remora-mobile-nav-link"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span>Documentation</span>
+          <span style={{ color: '#94a3b8', fontSize: '13px' }}>→</span>
+        </Link>
+        <Link 
+          href="/#pricing" 
+          className="remora-mobile-nav-link"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span>Pricing</span>
+          <span style={{ color: '#94a3b8', fontSize: '13px' }}>→</span>
         </Link>
 
-        {/* Center Links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '28px', fontSize: '14px', fontWeight: 500 }}>
-          <Link href="/#features" style={{ color: 'var(--text-secondary)', transition: 'color 0.15s ease' }}>
-            Features
-          </Link>
-          <Link href="/#architecture" style={{ color: 'var(--text-secondary)', transition: 'color 0.15s ease' }}>
-            Architecture
-          </Link>
-          <Link href="/docs" style={{ color: 'var(--text-secondary)', transition: 'color 0.15s ease' }}>
-            Documentation
-          </Link>
-          <Link href="/#pricing" style={{ color: 'var(--text-secondary)', transition: 'color 0.15s ease' }}>
-            Pricing
-          </Link>
-          <a
-            href="http://localhost:4000/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--text-muted)', fontSize: '13px' }}
-          >
-            API Reference
-          </a>
-        </nav>
-
-        {/* Right CTA / Auth Status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-              <path d="M9 18c-4.51 2-5-2-7-2" />
-            </svg>
-          </a>
-
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Link href="/dashboard" className="btn-primary" style={{ padding: '7px 14px', fontSize: '13px' }}>
-                <LayoutDashboard size={15} />
-                <span>Console</span>
-              </Link>
-              <button
-                onClick={() => {
-                  authService.logout();
-                  setUser(null);
-                  window.location.href = '/';
-                }}
-                className="btn-secondary"
-                style={{ padding: '7px 10px', fontSize: '12px' }}
-                title="Sign Out"
-              >
-                <LogOut size={14} />
-              </button>
-            </div>
+        <div className="remora-mobile-actions">
+          {isSignedIn ? (
+            <Link 
+              href="/dashboard" 
+              className="remora-cta-btn" 
+              style={{ justifyContent: 'center', height: '42px' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <LayoutDashboard size={15} />
+              <span>Console Workspace</span>
+            </Link>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Link href="/auth/signin" style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500 }}>
-                Sign In
+            <>
+              <Link 
+                href="/auth/signin" 
+                className="remora-cta-secondary"
+                style={{ justifyContent: 'center', height: '40px' }}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>Login</span>
               </Link>
-              <Link href="/auth/signup" className="btn-primary" style={{ padding: '7px 16px', fontSize: '13px' }}>
-                <span>Get Started Free</span>
-                <ArrowRight size={14} />
+              <Link 
+                href="/auth/signup" 
+                className="remora-cta-btn"
+                style={{ justifyContent: 'center', height: '42px' }}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>Sign Up Free</span>
+                <ArrowUpRight size={15} />
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>
     </header>
   );
 };
+export default Navbar;

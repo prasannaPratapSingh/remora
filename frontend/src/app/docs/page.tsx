@@ -56,7 +56,7 @@ export default function DocsPage() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      <div style={{ flex: 1, maxWidth: '1240px', width: '100%', margin: '0 auto', display: 'flex', borderBottom: '1px solid var(--border-subtle)' }}>
+      <div style={{ flex: 1, maxWidth: '1240px', width: '100%', margin: '0 auto', display: 'flex', borderBottom: '1px solid var(--border-subtle)', paddingTop: '68px' }}>
         {/* Left Docs Navigation */}
         <aside style={{
           width: '280px',
