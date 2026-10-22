@@ -6,20 +6,20 @@ import { motion } from 'motion/react';
 import { cooperBt } from './fonts';
 import { Navbar } from '../components/Navbar';
 import { HeroMemoryFlow } from '../components/HeroMemoryFlow';
-import { AtlanHeroArchitecture } from '../components/AtlanHeroArchitecture';
-import { 
-  BrainCircuit, 
-  ArrowRight, 
-  Sparkles, 
-  Layers, 
-  Cpu, 
-  Database, 
-  ShieldCheck, 
-  KeyRound, 
-  Terminal, 
-  CheckCircle2, 
-  Copy, 
-  Check, 
+import { WhyRemoraShowcase } from '../components/WhyRemoraShowcase';
+import {
+  BrainCircuit,
+  ArrowRight,
+  Sparkles,
+  Layers,
+  Cpu,
+  Database,
+  ShieldCheck,
+  KeyRound,
+  Terminal,
+  CheckCircle2,
+  Copy,
+  Check,
   ExternalLink,
   Zap,
   Clock,
@@ -37,6 +37,28 @@ const headlineLine3 = [
   { text: 'continuous' },
   { text: 'memory.' },
 ];
+
+const subheadingLine1 = "Self-evolving long-term memory for LLMs and autonomous fleets";
+const subheadingLine2 = "with sub-15ms pgvector retrieval.";
+
+let runningSubheadingCharIndex = 0;
+const parsedSubheadingLine1 = subheadingLine1.split(' ').map((word) => {
+  const chars = word.split('').map((char) => ({
+    char,
+    index: runningSubheadingCharIndex++
+  }));
+  runningSubheadingCharIndex++;
+  return { word, chars };
+});
+
+const parsedSubheadingLine2 = subheadingLine2.split(' ').map((word) => {
+  const chars = word.split('').map((char) => ({
+    char,
+    index: runningSubheadingCharIndex++
+  }));
+  runningSubheadingCharIndex++;
+  return { word, chars };
+});
 
 export default function LandingPage() {
   const [activeCodeTab, setActiveCodeTab] = useState<'ts' | 'py'>('ts');
@@ -91,12 +113,12 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       width: '100%',
-      backgroundColor: '#FAFAF9', 
-      color: '#0f172a', 
-      display: 'flex', 
+      backgroundColor: '#FAFAF9',
+      color: '#0f172a',
+      display: 'flex',
       flexDirection: 'column'
     }}>
       {/* Sticky Glassmorphic Navbar */}
@@ -114,7 +136,7 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
         <div className="remora-hero-glow" />
 
         <section style={{
-          padding: '116px 24px 0',
+          padding: '140px 24px 104px',
           maxWidth: '1240px',
           margin: '0 auto',
           width: '100%',
@@ -128,7 +150,7 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
           {/* Top Hero Content Area */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '820px', width: '100%', paddingTop: '8px' }}>
             {/* Main Headline: Cooper BT with Word-by-Word Staggering */}
-            <h1 
+            <h1
               className={`hero-cooper-title ${cooperBt.className}`}
               style={{
                 fontFamily: `${cooperBt.style.fontFamily}, 'Cooper BT', Georgia, serif`,
@@ -269,106 +291,136 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
               </span>
             </h1>
 
-            {/* Subheading: Single concise line with balanced whitespace */}
-            <motion.p 
-              initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 0.9, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+            {/* Subheading: Refined character-by-character staggered reveal */}
+            <p
               style={{
                 fontSize: 'clamp(17.5px, 1.45vw, 20px)',
                 color: '#1e293b',
                 fontWeight: 450,
                 maxWidth: '680px',
                 lineHeight: '1.6',
-                marginBottom: '38px'
+                marginBottom: '38px',
+                textAlign: 'center'
               }}
             >
-              Self-evolving long-term memory for LLMs and autonomous fleets <br /> with sub-15ms pgvector retrieval.
-            </motion.p>
+              <span style={{ display: 'inline' }}>
+                {parsedSubheadingLine1.map((item, wordIdx) => (
+                  <span
+                    key={`s1-w-${wordIdx}`}
+                    style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+                  >
+                    {item.chars.map((c) => (
+                      <motion.span
+                        key={`s1-c-${c.index}`}
+                        initial={{ opacity: 0, y: 5, filter: 'blur(4px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{
+                          duration: 0.28,
+                          delay: 0.95 + c.index * 0.011,
+                          ease: [0.16, 1, 0.3, 1]
+                        }}
+                        style={{ display: 'inline-block' }}
+                      >
+                        {c.char}
+                      </motion.span>
+                    ))}
+                    {wordIdx < parsedSubheadingLine1.length - 1 && (
+                      <span style={{ display: 'inline-block' }}>&nbsp;</span>
+                    )}
+                  </span>
+                ))}
+              </span>
+              <br />
+              <span style={{ display: 'inline' }}>
+                {parsedSubheadingLine2.map((item, wordIdx) => (
+                  <span
+                    key={`s2-w-${wordIdx}`}
+                    style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+                  >
+                    {item.chars.map((c) => (
+                      <motion.span
+                        key={`s2-c-${c.index}`}
+                        initial={{ opacity: 0, y: 5, filter: 'blur(4px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{
+                          duration: 0.28,
+                          delay: 0.95 + c.index * 0.011,
+                          ease: [0.16, 1, 0.3, 1]
+                        }}
+                        style={{ display: 'inline-block' }}
+                      >
+                        {c.char}
+                      </motion.span>
+                    ))}
+                    {wordIdx < parsedSubheadingLine2.length - 1 && (
+                      <span style={{ display: 'inline-block' }}>&nbsp;</span>
+                    )}
+                  </span>
+                ))}
+              </span>
+            </p>
 
-            {/* Focused CTAs using Unified Decided System */}
-            <motion.div 
-              initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{ duration: 0.9, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '48px' }}
+            {/* Focused CTAs: Staggered sequential entrance one-by-one */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '20px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                marginBottom: '48px'
+              }}
             >
-              <Link 
-                href="/docs" 
-                style={{
-                  color: '#0f172a',
-                  fontSize: '14.5px',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  borderBottom: '2px solid rgba(15, 23, 42, 0.25)',
-                  paddingBottom: '2px',
-                  transition: 'border-color 0.15s ease'
-                }}
+              {/* CTA 1: See How it Works */}
+              <motion.div
+                initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.75, delay: 1.85, ease: [0.16, 1, 0.3, 1] }}
+                style={{ display: 'inline-flex' }}
               >
-                <span>See How it Works</span>
-                <span style={{ color: '#3074FE' }}>→</span>
-              </Link>
+                <Link
+                  href="/docs"
+                  style={{
+                    color: '#0f172a',
+                    fontSize: '14.5px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    borderBottom: '2px solid rgba(15, 23, 42, 0.25)',
+                    paddingBottom: '2px',
+                    transition: 'border-color 0.15s ease'
+                  }}
+                >
+                  <span>See How it Works</span>
+                  <span style={{ color: '#3074FE' }}>→</span>
+                </Link>
+              </motion.div>
 
-              <Link 
-                href="/dashboard" 
-                className="remora-cta-btn"
-                style={{ height: '44px', paddingLeft: '22px', paddingRight: '16px', fontSize: '14.5px' }}
+              {/* CTA 2: Access Memory Console */}
+              <motion.div
+                initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.75, delay: 2.08, ease: [0.16, 1, 0.3, 1] }}
+                style={{ display: 'inline-flex' }}
               >
-                <span>Access Memory Console</span>
-                <ArrowRight size={16} />
-              </Link>
-            </motion.div>
+                <Link
+                  href="/dashboard"
+                  className="remora-cta-btn"
+                  style={{ height: '44px', paddingLeft: '22px', paddingRight: '16px', fontSize: '14.5px' }}
+                >
+                  <span>Access Memory Console</span>
+                  <ArrowRight size={16} />
+                </Link>
+              </motion.div>
+            </div>
           </div>
 
-          {/* Bottom: Centered Architecture Visualizer Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 28, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1.0, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            style={{ width: '100%' }}
-          >
-            <AtlanHeroArchitecture />
-          </motion.div>
+          {/* Big Rectangular Design: Why Remora Showcase (partially visible in hero fold) */}
+          <WhyRemoraShowcase />
         </section>
       </div>
-
-      {/* Metrics Strip */}
-      <section style={{
-        borderTop: '1px solid rgba(15, 23, 42, 0.08)',
-        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
-        backgroundColor: '#ffffff',
-        padding: '36px 24px',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-      }}>
-        <div style={{
-          maxWidth: '1240px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '24px',
-          textAlign: 'center'
-        }}>
-          <div>
-            <div style={{ fontSize: '32px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.02em' }}>1536-dim</div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Neon pgvector HNSW Index</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '32px', fontWeight: 700, color: '#059669', letterSpacing: '-0.02em' }}>&lt; 15 ms</div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>p95 Semantic Retrieval</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '32px', fontWeight: 700, color: '#4f46e5', letterSpacing: '-0.02em' }}>0.93 sim</div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Auto-Deduplication Threshold</div>
-          </div>
-          <div>
-            <div style={{ fontSize: '32px', fontWeight: 700, color: '#0891b2', letterSpacing: '-0.02em' }}>0 ms</div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>Added Chat Latency (BullMQ)</div>
-          </div>
-        </div>
-      </section>
 
       {/* Live SDK Integration Section */}
       <section style={{ padding: '80px 24px 60px', maxWidth: '1080px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
@@ -488,149 +540,268 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
             {activeCodeTab === 'ts' ? tsCode : pyCode}
           </pre>
         </div>
-      </section>
-
-      {/* Features Grid */}
-      <section id="features" style={{ padding: '80px 24px', maxWidth: '1240px', margin: '0 auto', width: '100%' }}>
+      </section>      {/* Features Bento Grid */}
+      <motion.section
+        id="features"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        style={{ padding: '96px 24px 80px', maxWidth: '1240px', margin: '0 auto', width: '100%' }}
+      >
         <div style={{ textAlign: 'center', marginBottom: '56px' }}>
           <span style={{
             fontSize: '11px',
-            fontWeight: 600,
-            color: '#4f46e5',
+            fontWeight: 700,
+            color: '#2563eb',
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-            padding: '4px 12px',
+            letterSpacing: '0.06em',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+            padding: '5px 14px',
             borderRadius: '9999px',
             display: 'inline-block',
-            marginBottom: '10px'
+            marginBottom: '12px'
           }}>
-            Capabilities
+            Cognitive Capabilities
           </span>
-          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#0f172a', marginBottom: '12px' }}>
-            Built for mission-critical AI applications
+          <h2 className={`editorial-title ${cooperBt.className}`} style={{ fontSize: 'clamp(30px, 3.2vw, 44px)', color: '#0f172a', marginBottom: '14px', letterSpacing: '-0.02em' }}>
+            Everything your AI agents need to remember forever
           </h2>
-          <p style={{ fontSize: '16px', color: '#475569', maxWidth: '580px', margin: '0 auto' }}>
-            Everything needed to manage persistent agent state, tenant isolation, and prompt context.
+          <p style={{ fontSize: '16px', color: '#64748b', maxWidth: '640px', margin: '0 auto', lineHeight: '1.6' }}>
+            No ad-hoc database tables. No dual-database desync. A managed cognitive memory substrate with sub-15ms vector retrieval.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
-          {/* Card 1 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Layers size={22} color="#4f46e5" />
+        {/* Bento Grid */}
+        <div className="remora-bento-grid">
+          {/* Card 1: Large Bento (Span 2) - Cognitive Taxonomy */}
+          <div className="remora-bento-card remora-bento-span-2">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Layers size={22} color="#2563eb" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
+                  Structured Intelligence
+                </span>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Strict Cognitive Taxonomy
+              </h3>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '22px' }}>
+                Raw chat logs cause context collapse. Remora automatically distills conversational turns into four typed cognitive classes with independent decay half-lives.
+              </p>
+
+              {/* Taxonomy Chips */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', fontFamily: 'var(--font-mono)' }}>PROFILE</span>
+                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~138d half-life</span>
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
+                    Alex • Principal Architect in Bangalore
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', fontFamily: 'var(--font-mono)' }}>PREFERENCE</span>
+                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~35d half-life</span>
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
+                    Strictly TypeScript & Next.js App Router
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#d97706', fontFamily: 'var(--font-mono)' }}>FACT</span>
+                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>Permanent</span>
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
+                    Production DB is PostgreSQL 16 on Neon
+                  </div>
+                </div>
+
+                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', fontFamily: 'var(--font-mono)' }}>PROJECT_CONTEXT</span>
+                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~14d half-life</span>
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
+                    HNSW cosine index with 1536-dim vectors
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              4-Tier Knowledge Distillation
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Memories are classified into Semantic (traits), Facts (specs), Procedural (rules), and Episodic (events), preventing context pollution.
-            </p>
           </div>
 
-          {/* Card 2 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Sparkles size={22} color="#0891b2" />
+          {/* Card 2: Span 1 - Auto Deduplication */}
+          <div className="remora-bento-card">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Sparkles size={22} color="#059669" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', backgroundColor: 'rgba(16, 185, 129, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
+                  sim &gt; 0.93
+                </span>
+              </div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Auto Deduplication
+              </h3>
+              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+                Users repeat preferences across dozens of sessions. Remora calculates cosine similarity and boosts confidence instead of duplicating rows.
+              </p>
+
+              {/* Progress Box */}
+              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                  <span style={{ color: '#64748b', fontWeight: 500 }}>Confidence Rating</span>
+                  <strong style={{ color: '#059669' }}>95% (+0.05 / repeat)</strong>
+                </div>
+                <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
+                  <div style={{ width: '95%', height: '100%', backgroundColor: '#10b981', borderRadius: '9999px' }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginTop: '8px' }}>
+                  <span>5 mentions detected</span>
+                  <span>0 DB rows created</span>
+                </div>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              Adaptive Hybrid Ranker
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Cosine similarity is weighted with importance scores, confidence ratings, and exponential recency decay so critical facts never get lost.
-            </p>
           </div>
 
-          {/* Card 3 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Zap size={22} color="#059669" />
+          {/* Card 3: Span 1 - Ebbinghaus Time Decay */}
+          <div className="remora-bento-card">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Clock size={22} color="#d97706" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#d97706', backgroundColor: 'rgba(245, 158, 11, 0.08)', padding: '3px 10px', borderRadius: '9999px', fontFamily: 'var(--font-mono)' }}>
+                  R = e^(-λ·Δt)
+                </span>
+              </div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Ebbinghaus Decay Curve
+              </h3>
+              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '16px' }}>
+                Avoids surfacing 6-month-old obsolete plans over yesterday's updates. Semantic score is exponentially weighted with elapsed time.
+              </p>
+
+              {/* Decay visualization */}
+              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11.5px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>Yesterday</span>
+                  <strong style={{ color: '#059669' }}>98% retention</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>30 Days</span>
+                  <strong style={{ color: '#d97706' }}>54% retention</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748b' }}>180 Days</span>
+                  <strong style={{ color: '#ef4444' }}>12% decayed</strong>
+                </div>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              Non-Blocking 202 Ingestion
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Offload extraction and embedding creation to background BullMQ workers. Your chatbot responds instantly while memories index in background.
-            </p>
           </div>
 
-          {/* Card 4 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <ShieldCheck size={22} color="#d97706" />
+          {/* Card 4: Span 2 - Unified Neon Architecture */}
+          <div className="remora-bento-card remora-bento-span-2">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Database size={22} color="#0891b2" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0891b2', backgroundColor: 'rgba(6, 182, 212, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
+                  Single ACID Database
+                </span>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Unified Neon pgvector Architecture
+              </h3>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+                Splitting vectors into Pinecone and metadata into PostgreSQL causes orphan embeddings, dual billing, and race conditions. Remora stores 1536-dim vectors, JSON audits, and metadata in one PostgreSQL table.
+              </p>
+
+              {/* Comparison visual */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '10px', padding: '12px', fontSize: '12px' }}>
+                  <div style={{ color: '#be123c', fontWeight: 700, marginBottom: '4px' }}>✕ Traditional Naive Setup</div>
+                  <div style={{ color: '#881337', lineHeight: '1.4' }}>Pinecone + Postgres sync bugs, race conditions, and prompt token bloat.</div>
+                </div>
+                <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px', fontSize: '12px' }}>
+                  <div style={{ color: '#15803d', fontWeight: 700, marginBottom: '4px' }}>✓ Remora Unified Substrate</div>
+                  <div style={{ color: '#166534', lineHeight: '1.4' }}>Atomic Neon pgvector transactions with sub-15ms p95 vector retrieval.</div>
+                </div>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              GDPR & Privacy Compliance
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Built-in Article 17 "Forget User" cascade deletion and Article 20 JSON data portability export endpoints ready for enterprise audits.
-            </p>
           </div>
 
-          {/* Card 5 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <KeyRound size={22} color="#7c3aed" />
+          {/* Card 5: Span 1 - Async BullMQ */}
+          <div className="remora-bento-card">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Zap size={22} color="#7c3aed" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', backgroundColor: 'rgba(168, 85, 247, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
+                  HTTP 202
+                </span>
+              </div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Async BullMQ Pipeline
+              </h3>
+              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '16px' }}>
+                Synchronous extraction adds 2–3s to chatbot turns. Remora returns an immediate <code>202 Accepted</code>, offloading extraction to worker queues.
+              </p>
+
+              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: '#7c3aed', letterSpacing: '-0.02em' }}>~ 0 ms</div>
+                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>Added chat latency</div>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              Two-Tier Auth & Key Hashing
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Developers manage workspaces via session auth, while AI agents communicate statelessly via SHA-256 hashed Bearer keys (<code style={{ color: '#4f46e5' }}>rl_live_*</code>).
-            </p>
           </div>
 
-          {/* Card 6 */}
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid rgba(15, 23, 42, 0.08)',
-            padding: '32px',
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.03)'
-          }}>
-            <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(244, 63, 94, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-              <Database size={22} color="#e11d48" />
+          {/* Card 6: Span 2 - Multi-Tenant Security & GDPR */}
+          <div className="remora-bento-card remora-bento-span-2">
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(15, 23, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck size={22} color="#0f172a" />
+                </div>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a', backgroundColor: '#f1f5f9', padding: '3px 10px', borderRadius: '9999px' }}>
+                  Enterprise Isolation
+                </span>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
+                Multi-Tenant Scoping & GDPR Article 17
+              </h3>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+                Composite SQL scoping guarantees zero vector leakage across organizations. Built-in compliance endpoints execute complete cryptographic cascade purges in milliseconds.
+              </p>
+
+              {/* Scoping Tags */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
+                  org_enterprise_id
+                </span>
+                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
+                  project_fleet_id
+                </span>
+                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
+                  external_user_id
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px' }}>
+                  ✓ GDPR Forget User Ready
+                </span>
+              </div>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-              Strict Multi-Tenant Scoping
-            </h3>
-            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
-              Composite SQL scoping by Organization, Project, and External User ID guarantees that zero cross-tenant vector leakage ever occurs.
-            </p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Pricing Section */}
       <section id="pricing" style={{
@@ -673,18 +844,18 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Interactive Search Playground</li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Community Support</li>
               </ul>
-              <Link 
-                href="/auth/signup" 
-                style={{ 
-                  display: 'block', 
-                  width: '100%', 
-                  padding: '11px', 
-                  textAlign: 'center', 
-                  backgroundColor: '#f1f5f9', 
-                  color: '#0f172a', 
-                  borderRadius: '8px', 
-                  fontWeight: 500, 
-                  textDecoration: 'none' 
+              <Link
+                href="/auth/signup"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '11px',
+                  textAlign: 'center',
+                  backgroundColor: '#f1f5f9',
+                  color: '#0f172a',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  textDecoration: 'none'
                 }}
               >
                 Get Started
@@ -705,18 +876,18 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Hot Redis 7 Context Caching</li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Automated TTL Expiration Cron</li>
               </ul>
-              <Link 
-                href="/auth/signup" 
-                style={{ 
-                  display: 'block', 
-                  width: '100%', 
-                  padding: '11px', 
-                  textAlign: 'center', 
-                  backgroundColor: '#0f172a', 
-                  color: '#ffffff', 
-                  borderRadius: '8px', 
-                  fontWeight: 600, 
-                  textDecoration: 'none' 
+              <Link
+                href="/auth/signup"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '11px',
+                  textAlign: 'center',
+                  backgroundColor: '#0f172a',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  textDecoration: 'none'
                 }}
               >
                 Start 14-Day Free Trial
@@ -734,18 +905,18 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> 99.99% Uptime SLA & BAA</li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> SAML SSO & Dedicated Architect</li>
               </ul>
-              <Link 
-                href="/auth/signup" 
-                style={{ 
-                  display: 'block', 
-                  width: '100%', 
-                  padding: '11px', 
-                  textAlign: 'center', 
-                  backgroundColor: '#f1f5f9', 
-                  color: '#0f172a', 
-                  borderRadius: '8px', 
-                  fontWeight: 500, 
-                  textDecoration: 'none' 
+              <Link
+                href="/auth/signup"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '11px',
+                  textAlign: 'center',
+                  backgroundColor: '#f1f5f9',
+                  color: '#0f172a',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  textDecoration: 'none'
                 }}
               >
                 Contact Enterprise
