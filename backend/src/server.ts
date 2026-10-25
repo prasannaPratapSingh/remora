@@ -10,18 +10,32 @@ import ApiError from "./utils/ApiError";
 import { openApiSpec } from "./docs/openapi";
 
 import cors from "cors";
+import { clerkMiddleware } from "@clerk/express";
+import envConfig from "./config/envConfig";
+import prisma from "./lib/prisma";
+import { getRedisClient, isRedisConnected } from "./lib/redis";
+import { requireAuth } from "./middlewares/authMiddelware";
+import { requireDashboardAuth } from "./middlewares/dashboardAuth";
 
 const app: Express = express();
 
 // Core middlewares
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "*"],
+    origin: envConfig.CORS_ORIGINS,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Clerk attaches the authenticated session to the request. Keep this
+// middleware conditional so API-key-only tests and local SDK usage continue
+// to work without Clerk credentials, while production dashboard routes are
+// protected by requireAuth/requireDashboardAuth below.
+if (envConfig.CLERK_SECRET_KEY) {
+    app.use(clerkMiddleware());
+}
 
 // Liveness / Readiness health check
 app.get("/health", (_: Request, res: Response) => {
@@ -30,6 +44,36 @@ app.get("/health", (_: Request, res: Response) => {
         service: "remora-memory-engine",
         timestamp: new Date().toISOString()
     });
+});
+
+app.get("/ready", async (_: Request, res: Response) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        const redisReady = isRedisConnected() || getRedisClient().status === "ready";
+
+        if (!redisReady) {
+            return res.status(503).json({
+                status: "not_ready",
+                service: "remora-memory-engine",
+                checks: { database: "ok", redis: "unavailable" },
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        return res.status(200).json({
+            status: "ready",
+            service: "remora-memory-engine",
+            checks: { database: "ok", redis: "ok" },
+            timestamp: new Date().toISOString()
+        });
+    } catch {
+        return res.status(503).json({
+            status: "not_ready",
+            service: "remora-memory-engine",
+            checks: { database: "unavailable", redis: isRedisConnected() ? "ok" : "unavailable" },
+            timestamp: new Date().toISOString()
+        });
+    }
 });
 
 // Interactive API Documentation (OpenAPI 3.0 + Scalar)
@@ -57,10 +101,10 @@ app.get("/docs", (_: Request, res: Response) => {
 });
 
 // Developer platform routes
-app.use("/api/auth", authRoutes);
-app.use("/api/keys", apiKeyRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/organizations", organizationRoutes);
+app.use("/api/auth", requireAuth, authRoutes);
+app.use("/api/keys", requireAuth, requireDashboardAuth, apiKeyRoutes);
+app.use("/api/projects", requireAuth, requireDashboardAuth, projectRoutes);
+app.use("/api/organizations", requireAuth, requireDashboardAuth, organizationRoutes);
 app.post("/api/webhooks/clerk", clerkWebhookHandler);
 
 // Core memory engine v1 routes

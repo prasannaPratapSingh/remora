@@ -17,14 +17,15 @@ import {
   INITIAL_METRICS,
   apiService 
 } from '../../lib/api';
-import { Memory, ApiKeyItem, ProjectItem } from '../../lib/types';
+import { ApiUsageSummary, Memory, ApiKeyItem, ProjectItem } from '../../lib/types';
 import { authService, AuthUser } from '../../lib/auth';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useAuth, useUser, useClerk } from '@clerk/nextjs';
 import { X, Plus, FolderGit2, LogOut, User, Building2, ShieldCheck } from 'lucide-react';
 
 export default function DashboardConsolePage() {
   const router = useRouter();
   const { isLoaded: isClerkLoaded, isSignedIn, user: clerkUser } = useUser();
+  const { getToken } = useAuth();
   const { signOut } = useClerk();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
@@ -37,6 +38,10 @@ export default function DashboardConsolePage() {
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>(INITIAL_API_KEYS);
   const [metrics, setMetrics] = useState(INITIAL_METRICS);
   const [backendStatus, setBackendStatus] = useState<{ online: boolean; latencyMs: number }>({ online: false, latencyMs: 0 });
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<ApiUsageSummary | null>(null);
 
   // Modals
   const [isAddMemoryOpen, setIsAddMemoryOpen] = useState(false);
@@ -51,6 +56,7 @@ export default function DashboardConsolePage() {
     async function initUser() {
       if (isClerkLoaded) {
         if (isSignedIn && clerkUser) {
+          apiService.setSessionToken(await getToken());
           const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress || 'developer@remora.ai';
           const displayName = clerkUser.fullName || clerkUser.firstName || clerkUser.username || 'Developer';
           
@@ -88,49 +94,57 @@ export default function DashboardConsolePage() {
     return () => {
       isMounted = false;
     };
-  }, [isClerkLoaded, isSignedIn, clerkUser, router]);
+  }, [isClerkLoaded, isSignedIn, clerkUser, router, getToken]);
 
-  // Backend Health and Data Sync
+  // Backend Health and Data Sync. The summary endpoint keeps this to one
+  // dashboard request instead of polling metrics, keys, and memories separately.
   useEffect(() => {
     let isMounted = true;
 
     const checkHealthAndSync = async () => {
+      setIsSyncing(true);
+      apiService.setSessionToken(await getToken());
       const status = await apiService.checkHealth();
       if (!isMounted) return;
       setBackendStatus(status);
 
-      if (status.online) {
-        try {
-          const liveProjects = await apiService.fetchProjects(user?.organizationId);
-          if (liveProjects && liveProjects.length > 0) {
-            setProjects(liveProjects);
-            if (!selectedProject) {
-              setSelectedProject(liveProjects[0]);
-            }
-          }
-          if (selectedProject?.id) {
-            const liveMetrics = await apiService.fetchProjectMetrics(selectedProject.id);
-            setMetrics(liveMetrics);
-            const liveKeys = await apiService.fetchApiKeys(selectedProject.id);
-            setApiKeys(liveKeys);
-            const liveMems = await apiService.fetchMemories(selectedProject.id);
-            if (liveMems && liveMems.length > 0) {
-              setMemories(liveMems);
-            }
-          }
-        } catch (e) {
-          console.warn('Error syncing live backend data', e);
-        }
+      if (!status.online) {
+        setSyncError('Backend unavailable. Showing the last synced workspace state.');
+        setIsSyncing(false);
+        return;
       }
+
+      if (!selectedProject?.id) {
+        setIsSyncing(false);
+        return;
+      }
+
+      const [summary, liveUsage] = await Promise.all([
+        apiService.fetchDashboardSummary(selectedProject.id),
+        apiService.fetchProjectUsage(selectedProject.id, 30)
+      ]);
+      if (!isMounted) return;
+
+      if (summary) {
+        setMetrics(summary.metrics);
+        setApiKeys(summary.apiKeys);
+        setMemories(summary.memories);
+        setUsage(liveUsage);
+        setLastSyncedAt(new Date().toISOString());
+        setSyncError(null);
+      } else {
+        setSyncError('Could not refresh project data. Retrying automatically.');
+      }
+      setIsSyncing(false);
     };
 
     checkHealthAndSync();
-    const interval = setInterval(checkHealthAndSync, 8000);
+    const interval = setInterval(checkHealthAndSync, 15000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [selectedProject?.id, user?.organizationId]);
+  }, [selectedProject?.id, getToken]);
 
   // Memory Handlers (Real PostgreSQL DB Persistence)
   const handleAddMemory = async (newMemoryData: Partial<Memory>) => {
@@ -140,40 +154,27 @@ export default function DashboardConsolePage() {
       externalUserId: newMemoryData.externalUserId || `user-${defaultUid}`,
       namespace: newMemoryData.namespace || 'default',
       content: newMemoryData.content || '',
-      type: newMemoryData.type || 'PREFERENCE',
+      type: newMemoryData.type || 'FACT',
       importance: newMemoryData.importance ?? 0.85,
       confidence: newMemoryData.confidence ?? 0.95
     };
 
     const savedMem = await apiService.createMemory(selectedProject.id, payload);
-    if (savedMem) {
-      setMemories(prev => [savedMem, ...prev]);
-    } else {
-      const localMem: Memory = {
-        id: `mem-${Date.now().toString().slice(-4)}`,
-        organizationId: selectedProject.organizationId,
-        projectId: selectedProject.id,
-        externalUserId: payload.externalUserId,
-        namespace: payload.namespace,
-        content: payload.content,
-        type: payload.type as any,
-        status: 'ACTIVE',
-        importance: payload.importance,
-        confidence: payload.confidence,
-        sourceType: 'DASHBOARD',
-        metadata: {},
-        lastAccessedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setMemories(prev => [localMem, ...prev]);
+    if (!savedMem) {
+      setSyncError('Memory could not be saved. Check the backend connection and try again.');
+      return;
     }
+
+    setMemories(prev => [savedMem, ...prev]);
 
     const updatedMetrics = await apiService.fetchProjectMetrics(selectedProject.id);
     setMetrics(updatedMetrics);
   };
 
-  const handleDeleteMemory = (id: string) => {
+  const handleDeleteMemory = async (id: string) => {
+    if (!selectedProject?.id) return;
+    const deleted = await apiService.deleteMemory(selectedProject.id, id);
+    if (!deleted) return;
     setMemories(prev => prev.filter(m => m.id !== id));
     setMetrics(prev => ({
       ...prev,
@@ -198,7 +199,10 @@ export default function DashboardConsolePage() {
   };
 
   // GDPR Forget User Handler
-  const handleForgetUserData = (userId: string) => {
+  const handleForgetUserData = async (userId: string) => {
+    if (!selectedProject?.id) return false;
+    const deleted = await apiService.deleteUserMemories(selectedProject.id, userId);
+    if (!deleted) return false;
     const purgedCount = memories.filter(m => m.externalUserId === userId).length;
     setMemories(prev => prev.filter(m => m.externalUserId !== userId));
     setMetrics(prev => ({
@@ -206,6 +210,7 @@ export default function DashboardConsolePage() {
       totalMemories: Math.max(0, prev.totalMemories - purgedCount),
       activeUsers: Math.max(0, prev.activeUsers - 1)
     }));
+    return true;
   };
 
   // Project Creation (Real PostgreSQL DB Persistence)
@@ -241,7 +246,7 @@ export default function DashboardConsolePage() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
+    <div className="dashboard-shell" style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}
@@ -263,20 +268,24 @@ export default function DashboardConsolePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 32px'
+          padding: '0 clamp(18px, 3vw, 40px)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Workspace:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <span className="dashboard-kicker">Workspace</span>
             <strong style={{ fontSize: '13px', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Building2 size={14} color="var(--accent-indigo)" />
-              {user?.organizationName || 'Acme AI Systems'}
+              {user?.organizationName || 'Primary Workspace'}
             </strong>
             <span className="badge badge-emerald" style={{ fontSize: '10px' }}>
               {user?.role || 'Owner'}
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="dashboard-sync-status">
+              <span className={backendStatus.online ? 'dashboard-status-dot is-online' : 'dashboard-status-dot'} />
+              <span>{isSyncing ? 'Syncing' : backendStatus.online ? 'Live' : 'Offline'}</span>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
               {clerkUser?.imageUrl ? (
                 <img
@@ -300,8 +309,7 @@ export default function DashboardConsolePage() {
                   {user?.name?.[0] || 'U'}
                 </div>
               )}
-              <span>{user?.name || 'Developer'}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>({user?.email})</span>
+               <span className="dashboard-user-name">{user?.name || 'Developer'}</span>
             </div>
 
             <button
@@ -317,7 +325,13 @@ export default function DashboardConsolePage() {
         </header>
 
         {/* Tab Views */}
-        <main style={{ flex: 1, padding: '32px 40px', overflowY: 'auto', maxWidth: '1440px', width: '100%' }}>
+        <main style={{ flex: 1, padding: 'clamp(22px, 4vw, 48px) clamp(18px, 3vw, 40px)', overflowY: 'auto', maxWidth: '1500px', width: '100%' }}>
+          {syncError && (
+            <div className="dashboard-sync-banner" role="status">
+              <span>{syncError}</span>
+              {lastSyncedAt && <span>Last synced {new Date(lastSyncedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>}
+            </div>
+          )}
           {currentTab === 'overview' && (
             <OverviewView
               metrics={metrics}
@@ -325,6 +339,10 @@ export default function DashboardConsolePage() {
               onNavigate={setCurrentTab}
               onOpenAddMemory={() => setIsAddMemoryOpen(true)}
               onOpenCreateKey={() => setIsCreateKeyOpen(true)}
+              backendStatus={backendStatus}
+              isSyncing={isSyncing}
+              lastSyncedAt={lastSyncedAt}
+              usage={usage}
             />
           )}
 
@@ -355,6 +373,7 @@ export default function DashboardConsolePage() {
           {currentTab === 'gdpr' && (
             <GdprView
               memories={memories}
+              projectId={selectedProject?.id}
               onForgetUserData={handleForgetUserData}
             />
           )}

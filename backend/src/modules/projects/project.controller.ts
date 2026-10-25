@@ -4,6 +4,7 @@ import ApiResponse from "../../utils/ApiResponse";
 import ApiError from "../../utils/ApiError";
 import prisma from "../../lib/prisma";
 import { MemoryService } from "../memories/memory.service";
+import { readApiUsage } from "../../middlewares/usageTracker";
 
 const memoryService = new MemoryService();
 
@@ -35,7 +36,10 @@ export const createProjectHandler = asyncHandler(async (req: Request, res: Respo
 
 export const listProjectsHandler = asyncHandler(async (req: Request, res: Response) => {
     const organizationId = req.query.organizationId as string;
-    const where = organizationId ? { organizationId } : {};
+    const allowedOrganizations = req.dashboardUser?.organizationIds || [];
+    const where = organizationId
+        ? { organizationId: { in: allowedOrganizations.filter((id) => id === organizationId) } }
+        : { organizationId: { in: allowedOrganizations } };
 
     const projects = await prisma.project.findMany({
         where,
@@ -103,6 +107,111 @@ export const getProjectMetricsHandler = asyncHandler(async (req: Request, res: R
     };
 
     return res.status(200).json(new ApiResponse(200, "Project metrics fetched successfully", metrics));
+});
+
+export const getProjectDashboardSummaryHandler = asyncHandler(async (req: Request, res: Response) => {
+    const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+
+    if (!projectId) {
+        throw new ApiError(400, "projectId parameter is required.");
+    }
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { id: true, name: true }
+    });
+
+    if (!project) {
+        throw new ApiError(404, `Project with ID '${projectId}' not found.`);
+    }
+
+    // The dashboard used to make four independent requests every few seconds.
+    // Keep this aggregation in one round-trip and run the independent database
+    // reads concurrently so the UI can refresh without creating request bursts.
+    const [memoryStats, typeBreakdown, activeUsers, tokenEstimate, apiKeys, memories] = await Promise.all([
+        prisma.memory.groupBy({
+            by: ["status"],
+            where: { projectId },
+            _count: { id: true }
+        }),
+        prisma.memory.groupBy({
+            by: ["type"],
+            where: { projectId, status: "ACTIVE" },
+            _count: { id: true }
+        }),
+        prisma.memory.findMany({
+            where: { projectId, status: "ACTIVE" },
+            select: { externalUserId: true },
+            distinct: ["externalUserId"]
+        }),
+        prisma.$queryRaw<Array<{ tokens: number | null }>>`
+            SELECT COALESCE(SUM(CEIL(char_length("content") / 4.0)), 0)::int AS "tokens"
+            FROM "memories"
+            WHERE "projectId" = ${projectId} AND "status" = 'ACTIVE'
+        `,
+        prisma.apiKey.findMany({
+            where: { projectId, revokedAt: null },
+            select: {
+                id: true,
+                name: true,
+                prefix: true,
+                lastUsedAt: true,
+                createdAt: true,
+                expiresAt: true
+            },
+            orderBy: { createdAt: "desc" }
+        }),
+        prisma.memory.findMany({
+            where: { projectId, status: "ACTIVE" },
+            include: { versions: { orderBy: { createdAt: "desc" } } },
+            orderBy: { createdAt: "desc" },
+            take: 100
+        })
+    ]);
+
+    const countForStatus = (status: string) => memoryStats.find((entry) => entry.status === status)?._count.id ?? 0;
+
+    return res.status(200).json(new ApiResponse(200, "Dashboard summary fetched successfully", {
+        project,
+        metrics: {
+            projectId,
+            projectName: project.name,
+            totalMemories: countForStatus("ACTIVE"),
+            activeMemories: countForStatus("ACTIVE"),
+            supersededMemories: countForStatus("SUPERSEDED"),
+            archivedMemories: countForStatus("ARCHIVED"),
+            activeUsers: activeUsers.length,
+            ingestedTokens: tokenEstimate[0]?.tokens ?? 0,
+            // Search latency and cache telemetry are not persisted yet. Returning
+            // null makes the UI show an honest "not instrumented" state.
+            p95LatencyMs: null,
+            cacheHitRatePercent: null,
+            totalActiveApiKeys: apiKeys.length,
+            memoriesByType: typeBreakdown.map((entry) => ({ type: entry.type, count: entry._count.id }))
+        },
+        apiKeys,
+        memories
+    }));
+});
+
+export const getProjectUsageHandler = asyncHandler(async (req: Request, res: Response) => {
+    const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+    const requestedDays = Number(req.query.days || 30);
+    const days = Number.isFinite(requestedDays) ? Math.min(Math.max(Math.floor(requestedDays), 1), 90) : 30;
+
+    if (!projectId) throw new ApiError(400, "projectId parameter is required.");
+
+    const apiKeys = await prisma.apiKey.findMany({
+        where: { projectId, revokedAt: null },
+        select: { id: true }
+    });
+
+    const usage = await readApiUsage(apiKeys.map((key) => key.id), days);
+    return res.status(200).json(new ApiResponse(200, "API usage fetched successfully", {
+        projectId,
+        days,
+        ...usage
+    }));
 });
 
 export const listProjectMemoriesHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -202,3 +311,72 @@ export const searchProjectMemoriesHandler = asyncHandler(async (req: Request, re
     }));
 });
 
+export const deleteProjectMemoryHandler = asyncHandler(async (req: Request, res: Response) => {
+    const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+    const memoryId = Array.isArray(req.params.memoryId) ? req.params.memoryId[0] : req.params.memoryId;
+
+    if (!projectId || !memoryId) {
+        throw new ApiError(400, "projectId and memoryId are required.");
+    }
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { organizationId: true }
+    });
+
+    if (!project) {
+        throw new ApiError(404, `Project with ID '${projectId}' not found.`);
+    }
+
+    const deleted = await memoryService.deleteMemory(memoryId, project.organizationId, projectId);
+    return res.status(200).json(new ApiResponse(200, "Memory deleted successfully", deleted));
+});
+
+export const exportProjectUserMemoriesHandler = asyncHandler(async (req: Request, res: Response) => {
+    const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+
+    if (!projectId || !userId) {
+        throw new ApiError(400, "projectId and userId are required.");
+    }
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { organizationId: true }
+    });
+
+    if (!project) {
+        throw new ApiError(404, `Project with ID '${projectId}' not found.`);
+    }
+
+    const memories = await memoryService.exportUserMemories(project.organizationId, projectId, userId);
+    return res.status(200).json(new ApiResponse(200, "User memories exported successfully", {
+        userId,
+        count: memories.length,
+        memories
+    }));
+});
+
+export const deleteProjectUserMemoriesHandler = asyncHandler(async (req: Request, res: Response) => {
+    const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
+    const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+
+    if (!projectId || !userId) {
+        throw new ApiError(400, "projectId and userId are required.");
+    }
+
+    const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { organizationId: true }
+    });
+
+    if (!project) {
+        throw new ApiError(404, `Project with ID '${projectId}' not found.`);
+    }
+
+    const result = await memoryService.deleteUserMemories(project.organizationId, projectId, userId);
+    return res.status(200).json(new ApiResponse(200, "User memories deleted successfully", {
+        userId,
+        deletedCount: result.count
+    }));
+});

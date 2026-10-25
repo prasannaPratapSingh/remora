@@ -5,10 +5,11 @@ import ApiError from "../../utils/ApiError";
 import prisma from "../../lib/prisma";
 
 export const createOrganizationHandler = asyncHandler(async (req: Request, res: Response) => {
-    const { name, slug, ownerId } = req.body;
+    const { name, slug } = req.body;
+    const ownerId = req.dashboardUser?.id;
 
     if (!name || !ownerId) {
-        throw new ApiError(400, "name and ownerId are required.");
+        throw new ApiError(400, "name is required.");
     }
 
     const user = await prisma.user.findUnique({
@@ -41,9 +42,12 @@ export const createOrganizationHandler = asyncHandler(async (req: Request, res: 
 });
 
 export const listOrganizationsHandler = asyncHandler(async (req: Request, res: Response) => {
-    const ownerId = req.query.ownerId as string;
+    const requestedOwnerId = req.query.ownerId as string | undefined;
+    const ownerId = req.dashboardUser?.id;
 
-    const where = ownerId ? { ownerId } : {};
+    const where = {
+        ownerId: requestedOwnerId && requestedOwnerId === ownerId ? ownerId : ownerId || "__unauthorized__"
+    };
 
     const organizations = await prisma.organization.findMany({
         where,
@@ -66,8 +70,8 @@ export const getOrganizationHandler = asyncHandler(async (req: Request, res: Res
 
     if (!orgId) throw new ApiError(400, "orgId is required");
 
-    const org = await prisma.organization.findUnique({
-        where: { id: orgId },
+    const org = await prisma.organization.findFirst({
+        where: { id: orgId, ownerId: req.dashboardUser?.id },
         include: {
             projects: {
                 include: {

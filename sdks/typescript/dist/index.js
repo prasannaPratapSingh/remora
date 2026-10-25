@@ -7,7 +7,7 @@ class RemoraClient {
       throw new Error("RemoraClient: apiKey is required.");
     }
     this.apiKey = config.apiKey;
-    this.baseUrl = (config.baseUrl || "http://localhost:4001").replace(/\/$/, "");
+    this.baseUrl = (config.baseUrl || "http://localhost:3000").replace(/\/$/, "");
   }
   async request(path, options = {}) {
     const url = `${this.baseUrl}${path}`;

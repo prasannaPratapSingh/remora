@@ -3,9 +3,18 @@ import asyncHandler from "../../utils/asyncHandler";
 import ApiResponse from "../../utils/ApiResponse";
 import ApiError from "../../utils/ApiError";
 import prisma from "../../lib/prisma";
+import { clerkClient, getAuth } from "@clerk/express";
 
 export const syncUserHandler = asyncHandler(async (req: Request, res: Response) => {
-    const { clerkId, email, name } = req.body;
+    const auth = getAuth(req);
+    if (!auth.userId) {
+        throw new ApiError(401, "Authenticated Clerk session is required.");
+    }
+
+    const clerkUser = await clerkClient.users.getUser(auth.userId);
+    const clerkId = clerkUser.id;
+    const email = clerkUser.primaryEmailAddress?.emailAddress;
+    const name = clerkUser.fullName || clerkUser.firstName || clerkUser.username || undefined;
 
     if (!email) {
         throw new ApiError(400, "email is required to sync user.");

@@ -21,7 +21,7 @@ import { RemoraClient } from "@remora/sdk";
 
 const remora = new RemoraClient({
     apiKey: process.env.REMORA_API_KEY || "rl_live_your_key_here",
-    baseUrl: "http://localhost:4001" // optional, defaults to http://localhost:4001
+    baseUrl: "http://localhost:3000" // optional, defaults to http://localhost:3000
 });
 
 // 1. Ingest a conversation (async background extraction)

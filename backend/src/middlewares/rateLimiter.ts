@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { getRedisClient, isRedisConnected } from "../lib/redis";
 import ApiError from "../utils/ApiError";
+import envConfig from "../config/envConfig";
 
 export interface RateLimitOptions {
     windowSeconds?: number;
@@ -19,8 +20,12 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
             const currentWindow = Math.floor(now / windowSeconds);
             const redisKey = `remora:ratelimit:${identifier}:${currentWindow}`;
 
-            // If Redis is offline, fail-open to prevent breaking legitimate traffic
+            // Production API traffic should not bypass rate limiting when Redis
+            // is unavailable. Local development can still fail open.
             if (!isRedisConnected()) {
+                if (envConfig.REQUIRE_REDIS_FOR_RATE_LIMITS) {
+                    return next(new ApiError(503, "Rate limiting is temporarily unavailable."));
+                }
                 res.setHeader("X-RateLimit-Limit", maxRequests);
                 res.setHeader("X-RateLimit-Remaining", maxRequests);
                 return next();

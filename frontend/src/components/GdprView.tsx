@@ -11,25 +11,38 @@ import {
   Clock 
 } from 'lucide-react';
 import { Memory } from '../lib/types';
+import { apiService } from '../lib/api';
 
 interface GdprViewProps {
   memories: Memory[];
-  onForgetUserData: (userId: string) => void;
+  projectId?: string;
+  onForgetUserData: (userId: string) => Promise<boolean> | boolean;
 }
 
-export const GdprView: React.FC<GdprViewProps> = ({ memories, onForgetUserData }) => {
+export const GdprView: React.FC<GdprViewProps> = ({ memories, projectId, onForgetUserData }) => {
   const [exportUserId, setExportUserId] = useState('');
   const [forgetUserId, setForgetUserId] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [forgetSuccess, setForgetSuccess] = useState(false);
+  const [isWorking, setIsWorking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleExport = () => {
-    const userMemories = memories.filter(m => m.externalUserId === exportUserId);
+  const handleExport = async () => {
+    if (!exportUserId.trim()) return;
+    setIsWorking(true);
+    setError(null);
+    const remoteExport = projectId ? await apiService.exportUserMemories(projectId, exportUserId.trim()) : null;
+    if (projectId && !remoteExport) {
+      setError('The backend could not prepare the export. Please retry when the project is online.');
+      setIsWorking(false);
+      return;
+    }
+    const userMemories = remoteExport?.memories || memories.filter(m => m.externalUserId === exportUserId.trim());
     const exportPayload = {
       exportTimestamp: new Date().toISOString(),
       compliance: 'GDPR / CCPA Data Portability (Article 20)',
-      targetUser: exportUserId,
+      targetUser: exportUserId.trim(),
       memoryCount: userMemories.length,
       memories: userMemories
     };
@@ -38,17 +51,25 @@ export const GdprView: React.FC<GdprViewProps> = ({ memories, onForgetUserData }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `remora-memory-export-${exportUserId}.json`;
+    a.download = `remora-memory-export-${exportUserId.trim()}.json`;
     a.click();
     URL.revokeObjectURL(url);
 
     setExportSuccess(true);
+    setIsWorking(false);
     setTimeout(() => setExportSuccess(false), 3000);
   };
 
-  const handleConfirmForget = () => {
+  const handleConfirmForget = async () => {
     if (!forgetUserId) return;
-    onForgetUserData(forgetUserId);
+    setIsWorking(true);
+    setError(null);
+    const deleted = await onForgetUserData(forgetUserId.trim());
+    setIsWorking(false);
+    if (!deleted) {
+      setError('The backend could not complete this request. No local data was removed.');
+      return;
+    }
     setShowConfirmModal(false);
     setForgetUserId('');
     setForgetSuccess(true);
@@ -67,6 +88,8 @@ export const GdprView: React.FC<GdprViewProps> = ({ memories, onForgetUserData }
           Built-in data subject rights management: Data Portability (Article 20) and Right to Be Forgotten (Article 17).
         </p>
       </div>
+
+      {error && <div className="dashboard-sync-banner dashboard-sync-banner-error">{error}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '20px' }}>
         {/* Data Portability Exporter */}
@@ -100,7 +123,7 @@ export const GdprView: React.FC<GdprViewProps> = ({ memories, onForgetUserData }
 
           <button onClick={handleExport} className="btn-primary" style={{ alignSelf: 'flex-start' }}>
             <Download size={15} />
-            <span>Generate & Download Archive JSON</span>
+            <span>{isWorking ? 'Preparing export…' : 'Generate & Download Archive JSON'}</span>
           </button>
 
           {exportSuccess && (
@@ -192,8 +215,8 @@ export const GdprView: React.FC<GdprViewProps> = ({ memories, onForgetUserData }
               <button onClick={() => setShowConfirmModal(false)} className="btn-secondary">
                 Cancel
               </button>
-              <button onClick={handleConfirmForget} className="btn-danger">
-                Yes, Purge User Data
+                <button onClick={handleConfirmForget} className="btn-danger" disabled={isWorking}>
+                  Yes, Purge User Data
               </button>
             </div>
           </div>

@@ -23,10 +23,10 @@ export interface Memory {
   status: MemoryStatus;
   importance: number;
   confidence: number;
-  sourceType: string;
+  sourceType: string | null;
   sourceId?: string | null;
   metadata?: Record<string, any> | null;
-  lastAccessedAt: string;
+  lastAccessedAt: string | null;
   expiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -69,12 +69,42 @@ export interface MetricsSummary {
   totalMemories: number;
   activeUsers: number;
   ingestedTokens: number;
-  p95LatencyMs: number;
-  cacheHitRatePercent: number;
+  p95LatencyMs: number | null;
+  cacheHitRatePercent: number | null;
   typeDistribution: {
     SEMANTIC: number;
     EPISODIC: number;
     PROCEDURAL: number;
     FACT: number;
+  };
+}
+
+export interface DashboardSummary {
+  metrics: MetricsSummary & {
+    activeMemories?: number;
+    supersededMemories?: number;
+    archivedMemories?: number;
+    totalActiveApiKeys?: number;
+  };
+  memories: Memory[];
+  apiKeys: ApiKeyItem[];
+}
+
+export interface ApiUsageSummary {
+  projectId: string;
+  days: Array<{
+    date: string;
+    requests: number;
+    successes: number;
+    errors: number;
+    totalLatencyMs: number;
+  }>;
+  endpoints?: Record<string, number>;
+  statusCodes?: Record<string, number>;
+  totals: {
+    requests: number;
+    successes: number;
+    errors: number;
+    totalLatencyMs: number;
   };
 }

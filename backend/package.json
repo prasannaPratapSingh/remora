@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "bun --watch src/app.ts",
     "build": "bun build --target=bun ./src/app.ts --outdir ./dist",
-    "start": "bun ./dist/app.js",
+    "start": "NODE_ENV=production bun ./dist/app.js",
     "fix": "bunx prisma format && bunx prisma validate",
     "migrate": "bunx prisma migrate dev",
     "migrate:prod": "bunx prisma migrate deploy",
     "generate": "bunx prisma generate",
     "worker": "bun src/worker.ts",
-    "test": "bun test --timeout 30000",
+    "test": "NODE_ENV=test bun test --timeout 30000",
     "eval": "bun src/modules/evaluation/evaluator.ts",
     "cleanup": "bun src/cron/cleanupExpiredMemories.ts"
   },

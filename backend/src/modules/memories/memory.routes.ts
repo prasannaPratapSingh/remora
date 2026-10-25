@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { apiKeyAuth } from "../../middlewares/apiKeyAuth";
 import { createRateLimiter } from "../../middlewares/rateLimiter";
+import { trackApiUsage } from "../../middlewares/usageTracker";
 import { validateRequest } from "../../middlewares/validateRequest";
 import {
     createMemorySchema,
@@ -28,6 +29,7 @@ const router = Router();
 
 // All /v1/memories routes require valid API key authentication & rate limiting
 router.use(apiKeyAuth);
+router.use(trackApiUsage);
 router.use(createRateLimiter({ windowSeconds: 60, maxRequests: 120 }));
 
 router.post("/", validateRequest(createMemorySchema), createMemoryHandler);

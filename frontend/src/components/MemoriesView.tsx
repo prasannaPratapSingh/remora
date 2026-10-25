@@ -65,7 +65,8 @@ export const MemoriesView: React.FC<MemoriesViewProps> = ({
     }
   };
 
-  const formatRelativeTime = (isoString: string) => {
+  const formatRelativeTime = (isoString: string | null) => {
+    if (!isoString) return 'Never';
     try {
       const diffSec = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
       if (diffSec < 60) return `${diffSec}s ago`;

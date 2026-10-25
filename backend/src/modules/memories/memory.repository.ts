@@ -305,16 +305,25 @@ export class MemoryRepository {
      * GDPR / Privacy: Delete all memories belonging to an external user (PRD §4.4, §36)
      */
     async deleteAllForUser(organizationId: string, projectId: string, externalUserId: string) {
-        return prisma.memory.updateMany({
-            where: {
-                organizationId,
-                projectId,
-                externalUserId
-            },
-            data: {
-                status: "DELETED",
-                updatedAt: new Date()
-            }
+        const memories = await prisma.memory.findMany({
+            where: { organizationId, projectId, externalUserId },
+            select: { id: true }
+        });
+
+        if (memories.length === 0) return { count: 0 };
+
+        return prisma.$transaction(async (tx) => {
+            await tx.memoryVersion.deleteMany({
+                where: { memoryId: { in: memories.map((memory) => memory.id) } }
+            });
+
+            return tx.memory.deleteMany({
+                where: {
+                    organizationId,
+                    projectId,
+                    externalUserId
+                }
+            });
         });
     }
 

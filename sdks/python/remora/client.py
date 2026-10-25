@@ -12,14 +12,14 @@ class RemoraClient:
     Zero external dependencies required (uses standard library urllib).
     """
 
-    def __init__(self, api_key: str, base_url: str = "http://localhost:4001", timeout: float = 30.0):
+    def __init__(self, api_key: str, base_url: str = "http://localhost:3000", timeout: float = 30.0):
         if not api_key:
             raise AuthenticationError("RemoraClient: api_key is required.")
         self.api_key = api_key.strip()
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 
-    def _request(self, method: str, path: str, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _request(self, method: str, path: str, payload: Optional[Dict[str, Any]] = None) -> Any:
         url = f"{self.base_url}{path}"
         headers = {
             "Content-Type": "application/json",
@@ -206,8 +206,9 @@ class RemoraClient:
 
         query = f"?{'&'.join(params)}" if params else ""
         res = self._request("GET", f"/v1/memories{query}")
-        memories = [Memory.from_dict(m) for m in res.get("memories", [])]
+        result = res if isinstance(res, dict) else {}
+        memories = [Memory.from_dict(m) for m in result.get("memories", [])]
         return {
-            "total": res.get("total", 0),
+            "total": result.get("total", 0),
             "memories": memories
         }

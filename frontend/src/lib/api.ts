@@ -1,4 +1,4 @@
-import { Memory, ApiKeyItem, ProjectItem, MetricsSummary } from './types';
+import { ApiUsageSummary, DashboardSummary, Memory, ApiKeyItem, ProjectItem, MetricsSummary } from './types';
 
 const backendEnv = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_REMORA_API_URL || 'http://localhost:4003';
 export const API_BASE_URL = backendEnv.replace(/\/api\/?$/, '');
@@ -6,13 +6,18 @@ export const API_BASE_URL = backendEnv.replace(/\/api\/?$/, '');
 export const INITIAL_PROJECTS: ProjectItem[] = [];
 export const INITIAL_MEMORIES: Memory[] = [];
 export const INITIAL_API_KEYS: ApiKeyItem[] = [];
+let sessionToken: string | null = null;
+
+function dashboardHeaders(): HeadersInit {
+  return sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {};
+}
 
 export const INITIAL_METRICS: MetricsSummary = {
   totalMemories: 0,
   activeUsers: 0,
   ingestedTokens: 0,
-  p95LatencyMs: 0,
-  cacheHitRatePercent: 0,
+  p95LatencyMs: null,
+  cacheHitRatePercent: null,
   typeDistribution: {
     SEMANTIC: 0,
     FACT: 0,
@@ -22,6 +27,10 @@ export const INITIAL_METRICS: MetricsSummary = {
 };
 
 export const apiService = {
+  setSessionToken(token: string | null) {
+    sessionToken = token;
+  },
+
   async checkHealth(): Promise<{ online: boolean; latencyMs: number }> {
     const start = performance.now();
     try {
@@ -37,7 +46,7 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/sync`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...dashboardHeaders() },
         body: JSON.stringify({ clerkId, email, name }),
         signal: AbortSignal.timeout(6000)
       });
@@ -55,7 +64,7 @@ export const apiService = {
       const url = organizationId 
         ? `${API_BASE_URL}/api/projects?organizationId=${organizationId}`
         : `${API_BASE_URL}/api/projects`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      const res = await fetch(url, { headers: dashboardHeaders(), signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error('Failed to fetch projects');
       const data = await res.json();
       return data.data || data.projects || data || [];
@@ -69,7 +78,7 @@ export const apiService = {
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const res = await fetch(`${API_BASE_URL}/api/projects`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...dashboardHeaders() },
         body: JSON.stringify({ organizationId, name, slug }),
         signal: AbortSignal.timeout(5000)
       });
@@ -84,7 +93,7 @@ export const apiService = {
 
   async fetchProjectMetrics(projectId: string): Promise<MetricsSummary> {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/metrics`, { signal: AbortSignal.timeout(3000) });
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/metrics`, { headers: dashboardHeaders(), signal: AbortSignal.timeout(3000) });
       if (!res.ok) throw new Error('Failed to fetch metrics');
       const data = await res.json();
       const m = data.data || data.metrics || {};
@@ -108,21 +117,58 @@ export const apiService = {
       }
 
       return {
-        totalMemories: m.totalMemories ?? 0,
+         totalMemories: m.activeMemories ?? m.totalMemories ?? 0,
         activeUsers: m.activeUsers ?? 0,
         ingestedTokens: m.ingestedTokens ?? 0,
-        p95LatencyMs: m.p95LatencyMs ?? 0,
-        cacheHitRatePercent: m.cacheHitRate ?? 0,
-        typeDistribution: typeDist
-      };
+         p95LatencyMs: m.p95LatencyMs ?? null,
+         cacheHitRatePercent: m.cacheHitRate ?? m.cacheHitRatePercent ?? null,
+         typeDistribution: typeDist
+       };
     } catch {
       return INITIAL_METRICS;
     }
   },
 
+  async fetchDashboardSummary(projectId: string): Promise<DashboardSummary | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/dashboard-summary`, {
+        headers: dashboardHeaders(),
+        signal: AbortSignal.timeout(6000),
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('Failed to fetch dashboard summary');
+      const json = await res.json();
+      const data = json.data || json;
+      return {
+        metrics: normalizeMetrics(data.metrics),
+        memories: normalizeMemories(data.memories || []),
+        apiKeys: data.apiKeys || []
+      };
+    } catch (err) {
+      console.warn('Backend fetchDashboardSummary error:', err);
+      return null;
+    }
+  },
+
+  async fetchProjectUsage(projectId: string, days = 30): Promise<ApiUsageSummary | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/usage?days=${days}`, {
+        headers: dashboardHeaders(),
+        signal: AbortSignal.timeout(5000),
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('Failed to fetch API usage');
+      const json = await res.json();
+      return json.data || json;
+    } catch (err) {
+      console.warn('Backend fetchProjectUsage error:', err);
+      return null;
+    }
+  },
+
   async fetchApiKeys(projectId: string): Promise<ApiKeyItem[]> {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/keys/project/${projectId}`, { signal: AbortSignal.timeout(3000) });
+      const res = await fetch(`${API_BASE_URL}/api/keys/project/${projectId}`, { headers: dashboardHeaders(), signal: AbortSignal.timeout(3000) });
       if (!res.ok) throw new Error('Failed to fetch api keys');
       const data = await res.json();
       return data.data || data.apiKeys || data || [];
@@ -135,7 +181,7 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE_URL}/api/keys`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...dashboardHeaders() },
         body: JSON.stringify({ projectId, name, isLive }),
         signal: AbortSignal.timeout(5000)
       });
@@ -163,6 +209,7 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE_URL}/api/keys/${keyId}/revoke`, {
         method: 'POST',
+        headers: dashboardHeaders(),
         signal: AbortSignal.timeout(3000)
       });
       return res.ok;
@@ -173,10 +220,10 @@ export const apiService = {
 
   async fetchMemories(projectId: string): Promise<Memory[]> {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/memories`, { signal: AbortSignal.timeout(4000) });
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/memories`, { headers: dashboardHeaders(), signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error('Failed to fetch memories');
       const data = await res.json();
-      return data.data || data.memories || [];
+      return normalizeMemories(data.data || data.memories || []);
     } catch {
       return [];
     }
@@ -186,16 +233,60 @@ export const apiService = {
     try {
       const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/memories`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...dashboardHeaders() },
         body: JSON.stringify(memoryData),
         signal: AbortSignal.timeout(5000)
       });
       if (!res.ok) throw new Error('Failed to create memory in DB');
       const json = await res.json();
-      return json.data || json;
+      return normalizeMemory(json.data || json);
     } catch (err) {
       console.warn('Backend createMemory error:', err);
       return null;
+    }
+  },
+
+  async deleteMemory(projectId: string, memoryId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/memories/${memoryId}`, {
+        method: 'DELETE',
+        headers: dashboardHeaders(),
+        signal: AbortSignal.timeout(5000)
+      });
+      return res.ok;
+    } catch (err) {
+      console.warn('Backend deleteMemory error:', err);
+      return false;
+    }
+  },
+
+  async exportUserMemories(projectId: string, userId: string): Promise<{ userId: string; count: number; memories: Memory[] } | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/users/${encodeURIComponent(userId)}/export`, {
+        headers: dashboardHeaders(),
+        signal: AbortSignal.timeout(6000)
+      });
+      if (!res.ok) throw new Error('Failed to export user memories');
+      const json = await res.json();
+      const data = json.data || json;
+      return { ...data, memories: normalizeMemories(data.memories || []) };
+    } catch (err) {
+      console.warn('Backend exportUserMemories error:', err);
+      return null;
+    }
+  },
+
+  async deleteUserMemories(projectId: string, userId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/projects/${projectId}/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+        headers: dashboardHeaders(),
+        signal: AbortSignal.timeout(6000)
+      });
+      return res.ok;
+    } catch (err) {
+      console.warn('Backend deleteUserMemories error:', err);
+      return false;
     }
   },
 
@@ -229,7 +320,7 @@ export const apiService = {
       });
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
-      return data.data?.memories || data.memories || [];
+      return data.data?.memories || data.data?.results || data.memories || data.results || data.data || [];
     } catch (err) {
       console.warn('Backend search error:', err);
       return [];
@@ -244,14 +335,60 @@ export const apiService = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({ externalUserId, namespace }),
+        body: JSON.stringify({ user_id: externalUserId, namespace }),
         signal: AbortSignal.timeout(5000)
       });
       if (!res.ok) throw new Error('Context generation failed');
       const data = await res.json();
-      return data.data?.context || data.context || '';
+      return data.data?.contextText || data.data?.context || data.contextText || data.context || '';
     } catch {
       return '';
     }
   }
 };
+
+function normalizeMemory(memory: any): Memory {
+  return {
+    ...memory,
+    lastAccessedAt: memory.lastAccessedAt || null,
+    sourceType: memory.sourceType || null,
+    metadata: memory.metadata || null,
+    versions: (memory.versions || []).map((version: any) => ({
+      ...version,
+      reason: version.reason || version.changeReason || undefined
+    }))
+  };
+}
+
+function normalizeMemories(memories: any[]): Memory[] {
+  return memories.map(normalizeMemory);
+}
+
+function normalizeMetrics(metrics: any): MetricsSummary {
+  const typeDist: MetricsSummary['typeDistribution'] = {
+    SEMANTIC: 0,
+    FACT: 0,
+    PROCEDURAL: 0,
+    EPISODIC: 0
+  };
+
+  for (const item of metrics?.memoriesByType || []) {
+    const count = Number(item.count) || 0;
+    const type = String(item.type || '').toUpperCase();
+    if (type === 'FACT') typeDist.FACT += count;
+    else if (type === 'INSTRUCTION' || type === 'BEHAVIOR' || type === 'PROCEDURAL') typeDist.PROCEDURAL += count;
+    else if (type === 'PROJECT_CONTEXT' || type === 'RELATIONSHIP' || type === 'TEMPORARY' || type === 'EPISODIC') typeDist.EPISODIC += count;
+    else typeDist.SEMANTIC += count;
+  }
+
+  return {
+    totalMemories: Number(metrics?.totalMemories ?? metrics?.activeMemories ?? 0),
+    activeUsers: Number(metrics?.activeUsers ?? 0),
+    ingestedTokens: Number(metrics?.ingestedTokens ?? 0),
+    p95LatencyMs: metrics?.p95LatencyMs == null ? null : Number(metrics.p95LatencyMs),
+    cacheHitRatePercent: metrics?.cacheHitRatePercent == null && metrics?.cacheHitRate == null
+      ? null
+      : Number(metrics.cacheHitRatePercent ?? metrics.cacheHitRate),
+    typeDistribution: typeDist
+  };
+}

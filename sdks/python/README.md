@@ -21,7 +21,7 @@ from remora import RemoraClient
 
 remora = RemoraClient(
     api_key="rl_live_your_key_here",
-    base_url="http://localhost:4001"  # Defaults to http://localhost:4001
+    base_url="http://localhost:3000"  # Defaults to http://localhost:3000
 )
 
 # 1. Ingest a conversation (async extraction with zero chatbot latency)

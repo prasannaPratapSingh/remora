@@ -13,7 +13,7 @@ interface AddMemoryModalProps {
 export const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ isOpen, onClose, onAdd }) => {
   const [userId, setUserId] = useState('');
   const [namespace, setNamespace] = useState('default');
-  const [type, setType] = useState<MemoryType>('SEMANTIC');
+  const [type, setType] = useState<MemoryType>('FACT');
   const [content, setContent] = useState('');
   const [importance, setImportance] = useState(0.85);
 
