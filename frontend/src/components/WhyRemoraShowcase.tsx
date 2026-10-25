@@ -8,7 +8,6 @@ import {
   Zap,
   Cpu,
   Layers,
-  Database,
   CheckCircle2,
   GitMerge,
   Activity,
@@ -27,7 +26,7 @@ const dimPresets = [
   {
     dim: 1536,
     provider: 'OpenAI text-3-large',
-    short: '1536-dim',
+    short: 'OpenAI',
     m: 'm=16',
     ef: 'ef=64',
     metric: 'cosine',
@@ -37,7 +36,7 @@ const dimPresets = [
   {
     dim: 3072,
     provider: 'Gemini 004 Embed',
-    short: '3072-dim',
+    short: 'Gemini',
     m: 'm=32',
     ef: 'ef=96',
     metric: 'cosine',
@@ -47,7 +46,7 @@ const dimPresets = [
   {
     dim: 768,
     provider: 'MiniLM Sentence-BERT',
-    short: '768-dim',
+    short: 'Open source',
     m: 'm=12',
     ef: 'ef=32',
     metric: 'cosine',
@@ -93,7 +92,7 @@ const hnswEdges: [number, number][] = [
   [8, 9]
 ];
 
-const whyRemoraSubheading = "Hardware-accelerated memory layer engineered for multi-turn reliability and zero agent latency.";
+const whyRemoraSubheading = "Remora helps your AI remember what matters, find it quickly, and stay responsive.";
 
 let runningWhyCharIndex = 0;
 const parsedWhySubheading = whyRemoraSubheading.split(' ').map((word) => {
@@ -107,23 +106,25 @@ const parsedWhySubheading = whyRemoraSubheading.split(' ').map((word) => {
 
 export const WhyRemoraShowcase: React.FC = () => {
   // 1. TextMorph cycling states
-  // Retrieval latency
-  const retrievalLatencies = ['< 11.4 ms', '< 13.8 ms', '< 9.2 ms', '< 14.5 ms'];
-  const retrievalLabels = ['p95 Semantic Retrieval', 'HNSW Vector Traversal', 'Sub-Token Cosine Scan'];
-  const [latencyIdx, setLatencyIdx] = useState(0);
+  // Fast recall states stay paired so the metric and explanation never drift apart.
+  const recallStates = [
+    { metric: 'Under 15 ms', label: 'Finds the right context' },
+    { metric: '3 memories', label: 'Searches your memory' },
+    { metric: 'Under 15 ms', label: 'Ready when your AI needs it' }
+  ];
+  const [recallIdx, setRecallIdx] = useState(0);
 
   // Auto-deduplication
-  const dedupStates = ['0.93 sim · Strict', 'Cosine Similarity', 'Auto-Deduplicated'];
-  const dedupActions = ['Duplicate Filtered', 'Merged with user_memories', 'Zero Redundancy'];
+  const dedupStates = ['Similar memories merged', 'Repeated details combined', 'Clean context for your AI'];
   const [dedupIdx, setDedupIdx] = useState(0);
 
-  // BullMQ Latency
-  const latencyClaims = ['~ 0 ms Added Chat Latency', 'Zero Token Stream Delay', 'Async BullMQ Workers'];
-  const latencySub = ['Non-blocking BullMQ pipeline', 'Parallel Redis message bus', 'Instant generation response'];
+  // Background work
+  const latencyClaims = ['Works in the background', 'No wait while memories save', 'Keeps your chat moving'];
+  const latencySub = ['Your response stays uninterrupted', 'New memories are saved quietly', 'Remora handles the busywork'];
   const [claimIdx, setClaimIdx] = useState(0);
 
   // AI Agent state
-  const agentModes = ['AGENT ACTIVE', 'CONTEXT SYNC', 'EPISODIC LOOP'];
+  const agentModes = ['ALWAYS READY', 'CONTEXT SYNCED', 'MEMORY ACTIVE'];
   const [agentIdx, setAgentIdx] = useState(0);
 
   // Hover states for interactive micro-interactions
@@ -144,16 +145,16 @@ export const WhyRemoraShowcase: React.FC = () => {
   // Dynamic dimension titles matching the active selectedDim preset
   const activeDimPreset = dimPresets.find((p) => p.dim === selectedDim) || dimPresets[0];
   const dimTitles = [
-    'Neon pgvector HNSW Index',
-    `${selectedDim}-dim Hyperplane`,
-    `${activeDimPreset.provider} Compatible`
+    'Works with your AI model',
+    'Keeps your memory flexible',
+    `${activeDimPreset.short} compatible`
   ];
   const [dimIdx, setDimIdx] = useState(0);
 
   // Auto cycle intervals for continuous subtle rhythm (increased reading duration)
   useEffect(() => {
     const timer = setInterval(() => {
-      setLatencyIdx((prev) => (prev + 1) % retrievalLatencies.length);
+      setRecallIdx((prev) => (prev + 1) % recallStates.length);
       setDedupIdx((prev) => (prev + 1) % dedupStates.length);
       setDimIdx((prev) => (prev + 1) % 3);
       setClaimIdx((prev) => (prev + 1) % latencyClaims.length);
@@ -287,7 +288,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                   display: 'inline-block'
                 }}
               />
-              Architecture & Benchmarks
+              A clearer way to add memory
             </motion.div>
 
             {/* 2. Main Title: "Why Remora" with Word-by-Word Stagger on reload */}
@@ -402,7 +403,7 @@ export const WhyRemoraShowcase: React.FC = () => {
               {/* Card Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', letterSpacing: '0.05em' }}>
-                  AI AGENT CORE
+                  AI MEMORY
                 </span>
                 <span
                   style={{
@@ -537,10 +538,10 @@ export const WhyRemoraShowcase: React.FC = () => {
               {/* Card Footer Caption */}
               <div>
                 <div style={{ fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}>
-                  Isometric AI Agent
+                  Your AI remembers
                 </div>
                 <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-                  Persistent autonomous memory loop
+                  Useful context across every conversation.
                 </div>
               </div>
             </div>
@@ -576,7 +577,7 @@ export const WhyRemoraShowcase: React.FC = () => {
               {/* Header Badge */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', letterSpacing: '0.05em' }}>
-                  LATENCY SLA
+                  FAST RECALL
                 </span>
                 <span
                   style={{
@@ -594,7 +595,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                   }}
                 >
                   <Zap size={11} />
-                  p95 Verified
+                  Quick responses
                 </span>
               </div>
 
@@ -610,14 +611,14 @@ export const WhyRemoraShowcase: React.FC = () => {
                     fontVariantNumeric: 'tabular-nums'
                   }}
                 >
-                  <TextMorph duration={650}>{retrievalLatencies[latencyIdx]}</TextMorph>
+                   <TextMorph duration={650}>{recallStates[recallIdx].metric}</TextMorph>
                 </div>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500, marginTop: '4px' }}>
-                  <TextMorph duration={650}>{retrievalLabels[latencyIdx % retrievalLabels.length]}</TextMorph>
+                   <TextMorph duration={650}>{recallStates[recallIdx].label}</TextMorph>
                 </div>
               </div>
 
-              {/* Animated Beam Flowchart: Query -> HNSW Graph Index -> Retrieved Context */}
+              {/* Simple memory recall preview */}
               <div
                 style={{
                   background: '#ffffff',
@@ -628,12 +629,12 @@ export const WhyRemoraShowcase: React.FC = () => {
                   overflow: 'hidden'
                 }}
               >
-                {/* Flowchart Header */}
+                {/* Recall preview header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3074FE', boxShadow: '0 0 6px rgba(48, 116, 254, 0.6)' }} />
                     <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#0f172a' }}>
-                      query_pipeline
+                      searching your memory
                     </span>
                   </div>
                   <span
@@ -647,241 +648,80 @@ export const WhyRemoraShowcase: React.FC = () => {
                       fontWeight: 600
                     }}
                   >
-                    11.2ms (3 hits)
+                    3 relevant memories
                   </span>
                 </div>
 
-                {/* Animated Beam Stage */}
+                {/* Simple recall animation: one question in, one calm stack of memories out. */}
                 <div
                   style={{
-                    position: 'relative',
-                    height: '92px',
-                    width: '100%',
-                    display: 'flex',
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1.35fr)',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    gap: '10px',
+                    minHeight: '92px'
                   }}
                 >
-                  {/* SVG Canvas for Connecting Animated Beams */}
-                  <svg
-                    viewBox="0 0 380 92"
-                    preserveAspectRatio="none"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      pointerEvents: 'none',
-                      zIndex: 1
-                    }}
-                  >
-                    <defs>
-                      <linearGradient id="beam-in-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3074FE" stopOpacity="0.1" />
-                        <stop offset="60%" stopColor="#3074FE" stopOpacity="1" />
-                        <stop offset="100%" stopColor="#38bdf8" stopOpacity="1" />
-                      </linearGradient>
-
-                      <linearGradient id="beam-out-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3074FE" stopOpacity="1" />
-                        <stop offset="50%" stopColor="#38bdf8" stopOpacity="1" />
-                        <stop offset="100%" stopColor="#3074FE" stopOpacity="0.2" />
-                      </linearGradient>
-
-                      <filter id="beam-glow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="1.5" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
-                    </defs>
-
-                    {/* Passive Base Tracks (Dashed) */}
-                    {/* Beam 1: Input to HNSW */}
-                    <path
-                      d="M 68 46 L 155 46"
-                      stroke="rgba(15, 23, 42, 0.12)"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
-                      fill="none"
-                    />
-                    {/* Beam 2: HNSW to pref_theme */}
-                    <path
-                      d="M 218 46 C 248 46, 252 16, 280 16"
-                      stroke="rgba(15, 23, 42, 0.12)"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
-                      fill="none"
-                    />
-                    {/* Beam 3: HNSW to agent_role */}
-                    <path
-                      d="M 218 46 L 280 46"
-                      stroke="rgba(15, 23, 42, 0.12)"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
-                      fill="none"
-                    />
-                    {/* Beam 4: HNSW to past_deploy */}
-                    <path
-                      d="M 218 46 C 248 46, 252 76, 280 76"
-                      stroke="rgba(15, 23, 42, 0.12)"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
-                      fill="none"
-                    />
-
-                    {/* Active Animated Traveling Light Beams */}
-                    {/* Incoming Query Beam */}
-                    <motion.path
-                      d="M 68 46 L 155 46"
-                      fill="none"
-                      stroke="url(#beam-in-grad)"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      filter="url(#beam-glow)"
-                      strokeDasharray="22 100"
-                      animate={{ strokeDashoffset: [122, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
-                    />
-
-                    {/* Outgoing Branch 1 (pref_theme) */}
-                    <motion.path
-                      d="M 218 46 C 248 46, 252 16, 280 16"
-                      fill="none"
-                      stroke="url(#beam-out-grad)"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      filter="url(#beam-glow)"
-                      strokeDasharray="22 100"
-                      animate={{ strokeDashoffset: [122, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'linear', delay: 0.7 }}
-                    />
-
-                    {/* Outgoing Branch 2 (agent_role) */}
-                    <motion.path
-                      d="M 218 46 L 280 46"
-                      fill="none"
-                      stroke="url(#beam-out-grad)"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      filter="url(#beam-glow)"
-                      strokeDasharray="22 100"
-                      animate={{ strokeDashoffset: [122, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'linear', delay: 0.7 }}
-                    />
-
-                    {/* Outgoing Branch 3 (past_deploy) */}
-                    <motion.path
-                      d="M 218 46 C 248 46, 252 76, 280 76"
-                      fill="none"
-                      stroke="url(#beam-out-grad)"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      filter="url(#beam-glow)"
-                      strokeDasharray="22 100"
-                      animate={{ strokeDashoffset: [122, 0] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: 'linear', delay: 0.7 }}
-                    />
-                  </svg>
-
-                  {/* Node 1: Input Query Vector (Left) */}
-                  <div
-                    style={{
-                      position: 'relative',
-                      zIndex: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '3px'
-                    }}
+                  <motion.div
+                    animate={{ y: isHoveredRadar ? -2 : 0, scale: isHoveredRadar ? 1.02 : 1 }}
+                    transition={{ duration: 0.25 }}
+                    style={{ textAlign: 'center', minWidth: 0 }}
                   >
                     <div
                       style={{
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        backgroundColor: '#ffffff',
-                        border: '1.5px solid rgba(48, 116, 254, 0.4)',
-                        boxShadow: '0 2px 6px rgba(48, 116, 254, 0.15)',
-                        fontSize: '9.5px',
-                        fontFamily: 'var(--font-mono)',
-                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        maxWidth: '100%',
+                        padding: '7px 10px',
+                        borderRadius: '9px',
+                        background: 'rgba(48, 116, 254, 0.07)',
+                        border: '1px solid rgba(48, 116, 254, 0.3)',
                         color: '#0f172a',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap'
                       }}
                     >
-                      <Sparkles size={11} color="#3074FE" />
-                      <span>q_vec</span>
+                      <Sparkles size={12} color="#3074FE" />
+                      Your question
                     </div>
-                    <span style={{ fontSize: '8.5px', color: '#64748b' }}>User Intent</span>
-                  </div>
-
-                  {/* Node 2: HNSW Core Graph Index (Center) */}
-                  <div
-                    style={{
-                      position: 'relative',
-                      zIndex: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '3px'
-                    }}
-                  >
-                    <div
-                      style={{
-                        padding: '5px 10px',
-                        borderRadius: '8px',
-                        backgroundColor: '#ffffff',
-                        border: '1.5px solid #3074FE',
-                        boxShadow: '0 0 12px rgba(48, 116, 254, 0.25)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      <Database size={13} color="#3074FE" />
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: '10px', fontWeight: 700, color: '#0f172a', lineHeight: 1 }}>HNSW</span>
-                        <span style={{ fontSize: '7.5px', color: '#3074FE', fontWeight: 600 }}>&lt; 15ms</span>
-                      </div>
+                    <div style={{ fontSize: '9px', color: '#64748b', marginTop: '5px' }}>
+                      What your user needs
                     </div>
-                    <span style={{ fontSize: '8.5px', color: '#64748b' }}>pgvector</span>
-                  </div>
+                  </motion.div>
 
-                  {/* Node 3: Staggered Output Memory Hits (Right) */}
-                  <div
-                    style={{
-                      position: 'relative',
-                      zIndex: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}
-                  >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 }}>
                     {[
-                      { key: 'pref_theme', sim: '0.96' },
-                      { key: 'agent_role', sim: '0.94' },
-                      { key: 'past_deploy', sim: '0.91' }
+                      { key: 'Preferences', sim: 'Best match' },
+                      { key: 'Your role', sim: 'Strong match' },
+                      { key: 'Past context', sim: 'Related' }
                     ].map((item, idx) => (
-                      <div
-                        key={idx}
+                      <motion.div
+                        key={item.key}
+                        animate={{ opacity: [0.72, 1, 0.72], x: [3, 0, 3] }}
+                        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: idx * 0.18 }}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'space-between',
                           gap: '6px',
-                          padding: '2px 8px',
-                          borderRadius: '5px',
-                          backgroundColor: '#ffffff',
+                          minWidth: 0,
+                          padding: '5px 8px',
+                          borderRadius: '7px',
+                          background: '#ffffff',
                           border: '1px solid rgba(15, 23, 42, 0.1)',
                           boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
                         }}
                       >
-                        <span style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', fontWeight: 600, color: '#0f172a' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.key}
                         </span>
-                        <span style={{ fontSize: '8px', fontFamily: 'var(--font-mono)', color: '#3074FE', fontWeight: 600 }}>
+                        <span style={{ fontSize: '8px', color: '#3074FE', fontWeight: 600, whiteSpace: 'nowrap' }}>
                           {item.sim}
                         </span>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -918,7 +758,7 @@ export const WhyRemoraShowcase: React.FC = () => {
               {/* Header Badge */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', letterSpacing: '0.05em' }}>
-                  DEDUPLICATION
+                  CLEAN CONTEXT
                 </span>
                 <button
                   onClick={(e) => {
@@ -943,7 +783,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                   }}
                 >
                   <GitMerge size={11} />
-                  Auto-Clustered
+                  Keeps it tidy
                 </button>
               </div>
 
@@ -959,7 +799,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                       lineHeight: '1.1'
                     }}
                   >
-                    {selectedThreshold} sim
+                    Clean context
                   </div>
                   {/* Interactive Threshold Preset Selector */}
                   <div style={{ display: 'inline-flex', gap: '3px', background: 'rgba(15, 23, 42, 0.04)', padding: '2px', borderRadius: '8px' }}>
@@ -987,7 +827,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          {th}
+                          {th === 0.9 ? 'Flexible' : th === 0.93 ? 'Balanced' : 'Strict'}
                         </button>
                       );
                     })}
@@ -1012,7 +852,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span style={{ fontSize: '10.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Sliders size={11} color="#64748b" />
-                    Cosine Distance
+                    Similarity check
                   </span>
                   <span
                     style={{
@@ -1022,7 +862,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                       fontFamily: 'var(--font-mono)'
                     }}
                   >
-                    0.954 {0.954 >= selectedThreshold ? '≥' : '<'} {selectedThreshold.toFixed(2)}
+                    {0.954 >= selectedThreshold ? 'Likely the same detail' : 'Looks different'}
                   </span>
                 </div>
 
@@ -1111,7 +951,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                         maxWidth: '120px'
                       }}
                     >
-                      mem_a: "Prefers TS"
+                      Prefers TypeScript
                     </div>
                     <motion.div
                       animate={
@@ -1146,7 +986,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                         maxWidth: '120px'
                       }}
                     >
-                      mem_b: "Next.js TS"
+                      Uses Next.js
                     </div>
                   </div>
 
@@ -1166,12 +1006,12 @@ export const WhyRemoraShowcase: React.FC = () => {
                     {0.954 >= selectedThreshold ? (
                       <>
                         <CheckCircle2 size={11} color="#3074FE" />
-                        <span>Merged into 1 Canonical Vector (Saved 14 tokens)</span>
+                        <span>Merged into one useful memory</span>
                       </>
                     ) : (
                       <>
                         <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#64748b' }} />
-                        <span>Stored as 2 Independent Vectors (Threshold strict)</span>
+                        <span>Kept separate so both details stay clear</span>
                       </>
                     )}
                   </div>
@@ -1226,7 +1066,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', textAlign: 'left' }}>
                     <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', letterSpacing: '0.05em' }}>
-                      VECTOR GEOMETRY
+                      FLEXIBLE SETUP
                     </span>
                     <span
                       style={{
@@ -1238,7 +1078,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                         color: '#475569'
                       }}
                     >
-                      HNSW Graph
+                      Works with your stack
                     </span>
                   </div>
 
@@ -1252,7 +1092,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                       textAlign: 'left'
                     }}
                   >
-                    {selectedDim}-dim
+                    Fits your model
                   </div>
 
                   <div
@@ -1303,7 +1143,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                   {/* Parameters Badge */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
                     <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
-                      m={dimPresets.find((p) => p.dim === selectedDim)?.m.replace('m=', '') || '16'} · ef={dimPresets.find((p) => p.dim === selectedDim)?.ef.replace('ef=', '') || '64'} · cosine
+                      Easy to adapt · quick to search
                     </span>
                   </div>
                 </div>
@@ -1323,7 +1163,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Network size={13} color="#3074FE" />
                       <span style={{ fontSize: '11px', fontWeight: 600, color: '#0f172a' }}>
-                        HNSW Hierarchical Traversal
+                        How Remora finds a memory
                       </span>
                     </div>
                     <span
@@ -1336,7 +1176,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                         borderRadius: '4px'
                       }}
                     >
-                      Hover Nodes
+                      Explore the path
                     </span>
                   </div>
 
@@ -1446,10 +1286,10 @@ export const WhyRemoraShowcase: React.FC = () => {
                     }}
                   >
                     <span style={{ fontSize: '10px', color: '#475569', fontFamily: 'var(--font-mono)' }}>
-                      Node #{activeVectorNode} ({hnswNodes[activeVectorNode]?.label})
+                      Memory path step {activeVectorNode + 1}
                     </span>
                     <span style={{ fontSize: '10px', fontWeight: 600, color: '#3074FE', fontFamily: 'var(--font-mono)' }}>
-                      dist={hnswNodes[activeVectorNode]?.dist} (cos: {(1 - parseFloat(hnswNodes[activeVectorNode]?.dist || '0.02')).toFixed(3)})
+                      {activeVectorNode === 7 ? 'Best match found' : 'Following related context'}
                     </span>
                   </div>
                 </div>
@@ -1473,12 +1313,12 @@ export const WhyRemoraShowcase: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3074FE' }} />
                   <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#334155' }}>
-                    Sample: {dimPresets.find((p) => p.dim === selectedDim)?.sampleCoords}
+                    Your memories stay together
                   </span>
                 </div>
 
                 <span style={{ fontSize: '10.5px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
-                  Neon Serverless · pgvector 0.8.0
+                  Works with popular AI models and databases
                 </span>
               </div>
             </div>
@@ -1514,7 +1354,7 @@ export const WhyRemoraShowcase: React.FC = () => {
               {/* Header Badge */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', letterSpacing: '0.05em' }}>
-                  ASYNC INGESTION
+                  BACKGROUND WORK
                 </span>
                 <span
                   style={{
@@ -1532,7 +1372,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                   }}
                 >
                   <Activity size={11} />
-                  BullMQ
+                  No interruption
                 </span>
               </div>
 
@@ -1547,7 +1387,7 @@ export const WhyRemoraShowcase: React.FC = () => {
                     lineHeight: '1.1'
                   }}
                 >
-                  ~ 0 ms
+                  No slowdown
                 </div>
                 <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500, marginTop: '4px' }}>
                   <TextMorph duration={650}>{latencyClaims[claimIdx]}</TextMorph>
@@ -1567,9 +1407,9 @@ export const WhyRemoraShowcase: React.FC = () => {
               >
                 {/* Simulated Token Stream Track Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '10.5px', color: '#64748b' }}>Chat Token Stream:</span>
+                  <span style={{ fontSize: '10.5px', color: '#64748b' }}>While you chat:</span>
                   <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#0f172a', fontFamily: 'var(--font-mono)' }}>
-                    UNINTERRUPTED
+                    KEEP TALKING
                   </span>
                 </div>
 

@@ -903,7 +903,344 @@ html {
   border-color: rgba(48, 116, 254, 0.25);
 }
 
+.remora-capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.remora-capabilities-shell {
+  position: relative;
+  overflow: hidden;
+  padding: 40px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.12), transparent 30%),
+    linear-gradient(135deg, #ffffff 0%, #f8fafc 68%, #eef2ff 100%);
+  box-shadow: 0 24px 70px -30px rgba(15, 23, 42, 0.24);
+}
+
+.remora-capabilities-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.38;
+  background-image: radial-gradient(rgba(48, 116, 254, 0.14) 0.8px, transparent 0.8px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.55), transparent 44%);
+}
+
+.remora-capabilities-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.remora-capability-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 218px;
+  padding: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow:
+    0 12px 26px -16px rgba(15, 23, 42, 0.42),
+    0 3px 7px -3px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.remora-capability-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  border-radius: 0 0 999px 999px;
+  background: linear-gradient(90deg, #3074FE, rgba(48, 116, 254, 0.08));
+  opacity: 0.8;
+}
+
+.remora-capability-card::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  right: -80px;
+  bottom: -90px;
+  border-radius: 50%;
+  background: rgba(48, 116, 254, 0.07);
+  filter: blur(12px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.remora-capability-card:nth-child(2)::before { background: linear-gradient(90deg, #10b981, rgba(16, 185, 129, 0.08)); }
+.remora-capability-card:nth-child(3)::before { background: linear-gradient(90deg, #f59e0b, rgba(245, 158, 11, 0.08)); }
+.remora-capability-card:nth-child(4)::before { background: linear-gradient(90deg, #0284c7, rgba(2, 132, 199, 0.08)); }
+.remora-capability-card:nth-child(5)::before { background: linear-gradient(90deg, #7c3aed, rgba(124, 58, 237, 0.08)); }
+.remora-capability-card:nth-child(6)::before { background: linear-gradient(90deg, #475569, rgba(71, 85, 105, 0.08)); }
+
+.remora-capability-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(48, 116, 254, 0.24);
+  box-shadow:
+    0 20px 34px -18px rgba(15, 23, 42, 0.42),
+    0 5px 10px -4px rgba(48, 116, 254, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.remora-capability-card-primary {
+  grid-row: auto;
+  min-height: 280px;
+  background: linear-gradient(145deg, #ffffff 0%, #f7faff 100%);
+  box-shadow:
+    0 18px 38px -20px rgba(48, 116, 254, 0.34),
+    0 4px 9px -4px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.remora-capability-card-wide {
+  grid-column: auto;
+  min-height: 190px;
+}
+
+.developer-experience-card {
+  min-height: 420px;
+}
+
+.remora-deployment-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 480px;
+  box-shadow:
+    0 14px 30px -20px rgba(15, 23, 42, 0.38),
+    0 3px 8px -4px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.remora-deployment-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(48, 116, 254, 0.32) !important;
+  box-shadow:
+    0 24px 40px -22px rgba(15, 23, 42, 0.42),
+    0 6px 12px -5px rgba(48, 116, 254, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+}
+
+.remora-deployment-card-featured {
+  box-shadow:
+    0 18px 34px -20px rgba(15, 23, 42, 0.46),
+    0 4px 10px -4px rgba(15, 23, 42, 0.18),
+    inset 0 2px 0 #3074FE;
+}
+
+.remora-deployment-check {
+  position: absolute;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 14px 24px -12px rgba(15, 23, 42, 0.65);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.remora-site-footer {
+  position: relative;
+  margin-top: 96px;
+  overflow: hidden;
+  background: #111111;
+  color: #f8fafc;
+  border-radius: 40px 40px 0 0;
+}
+
+.remora-site-footer-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 72px 24px 42px;
+}
+
+.remora-site-footer-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 48px;
+}
+
+.remora-footer-brand {
+  color: #f8fafc;
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.remora-footer-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
+  gap: clamp(42px, 7vw, 100px);
+  min-width: min(620px, 100%);
+}
+
+.remora-footer-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+  font-size: 15px;
+}
+
+.remora-footer-column a {
+  color: #f1f5f9;
+  text-decoration: none;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.remora-footer-column a:hover,
+.remora-footer-legal a:hover {
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.remora-footer-heading {
+  margin-bottom: 10px;
+  color: #a1a1aa;
+  font-size: 15px;
+}
+
+.remora-site-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 158px;
+  color: #a1a1aa;
+  font-size: 14px;
+}
+
+.remora-footer-bottom-right,
+.remora-footer-legal,
+.remora-footer-socials {
+  display: flex;
+  align-items: center;
+}
+
+.remora-footer-bottom-right {
+  gap: 26px;
+}
+
+.remora-footer-legal {
+  gap: 28px;
+}
+
+.remora-footer-legal a {
+  color: #a1a1aa;
+  text-decoration: none;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.remora-footer-divider {
+  width: 1px;
+  height: 28px;
+  background: #343434;
+}
+
+.remora-footer-socials {
+  gap: 24px;
+  color: #d4d4d8;
+  font-size: 18px;
+}
+
+.remora-footer-socials span:last-child {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.remora-footer-ascii {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 14.5vw;
+  min-height: 72px;
+  max-height: 220px;
+  overflow: hidden;
+  margin-top: 110px;
+  margin-left: 0;
+  color: #242424;
+  font-family: var(--font-mono);
+  font-size: 29vw;
+  font-weight: 900;
+  letter-spacing: -0.1em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
 @media (max-width: 1024px) {
+  .remora-capabilities-heading {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .remora-capabilities-description {
+    padding-top: 0 !important;
+  }
+
+  .remora-capabilities-shell {
+    padding: 34px 28px;
+  }
+
+  .remora-capabilities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .remora-capability-card-primary,
+  .remora-capability-card-wide {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 0;
+  }
+
+  .developer-experience-card {
+    grid-template-columns: 1fr !important;
+    gap: 34px !important;
+    padding: 42px 34px !important;
+  }
+
+  .remora-deployment-card {
+    min-height: 460px;
+  }
+
+  .remora-site-footer-top {
+    flex-direction: column;
+  }
+
+  .remora-footer-nav {
+    width: 100%;
+  }
+
+  .remora-site-footer-bottom {
+    margin-top: 100px;
+  }
+
   .remora-bento-grid {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -917,11 +1254,71 @@ html {
 
 /* Why Remora Showcase Bento */
 @media (max-width: 960px) {
+  .developer-experience-card {
+    min-height: 0;
+  }
+
   .why-remora-grid {
     grid-template-columns: 1fr !important;
   }
   .why-remora-card {
     grid-column: span 12 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .remora-capabilities-shell {
+    padding: 34px 22px;
+    border-radius: 18px;
+  }
+
+  .remora-capability-card {
+    padding: 22px;
+  }
+
+  .remora-capability-card-wide > div {
+    grid-template-columns: 1fr !important;
+  }
+
+  .developer-experience-card {
+    padding: 34px 22px !important;
+    border-radius: 18px !important;
+  }
+
+  .remora-deployment-card {
+    min-height: 0;
+  }
+
+  .remora-site-footer {
+    margin-top: 64px;
+  }
+
+  .remora-site-footer-inner {
+    padding: 52px 20px 30px;
+  }
+
+  .remora-footer-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 24px;
+  }
+
+  .remora-site-footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 78px;
+  }
+
+  .remora-footer-bottom-right {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .remora-footer-ascii {
+    height: 14.5vw;
+    min-height: 0;
+    margin-top: 86px;
+    font-size: 29vw;
   }
 }
 

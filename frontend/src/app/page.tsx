@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { cooperBt } from './fonts';
 import { Navbar } from '../components/Navbar';
 import { HeroMemoryFlow } from '../components/HeroMemoryFlow';
@@ -111,6 +111,20 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
+
+  const codePreview = activeCodeTab === 'ts'
+    ? `import { RemoraClient } from "@remora/sdk";
+
+const remora = new RemoraClient({ apiKey });
+
+await remora.add({ userId, content });
+const context = await remora.context({ userId, query });`
+    : `from remora import RemoraClient
+
+remora = RemoraClient(api_key)
+
+remora.add(user_id, content)
+context = remora.context(user_id, query)`;
 
   return (
     <div style={{
@@ -422,580 +436,440 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
         </section>
       </div>
 
-      {/* Live SDK Integration Section */}
-      <section style={{ padding: '80px 24px 60px', maxWidth: '1080px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
-        <span style={{
-          fontSize: '11px',
-          fontWeight: 600,
-          color: '#4f46e5',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-          padding: '4px 12px',
-          borderRadius: '9999px',
-          display: 'inline-block',
-          marginBottom: '14px'
-        }}>
-          Developer Experience
-        </span>
-        <h2 className="editorial-title" style={{ fontSize: '36px', color: '#0f172a', marginBottom: '12px' }}>
-          Three lines of code to remember everything
-        </h2>
-        <p style={{ fontSize: '15px', color: '#475569', maxWidth: '580px', margin: '0 auto 36px', lineHeight: '1.6' }}>
-          Integrates cleanly with OpenAI, Anthropic, LangChain, or raw Next.js Server Actions.
-        </p>
+      {/* Developer Experience Section */}
+      <section style={{ padding: '96px 24px 80px', maxWidth: '1180px', margin: '0 auto', width: '100%' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Developer Experience
+          </span>
+        </div>
 
-        {/* Terminal Card */}
-        <div style={{
-          width: '100%',
-          maxWidth: '860px',
-          margin: '0 auto',
-          textAlign: 'left',
+        <div className="developer-experience-card" style={{
+          position: 'relative',
           overflow: 'hidden',
-          borderRadius: '16px',
-          backgroundColor: '#0f172a',
-          boxShadow: '0 24px 60px -15px rgba(15, 23, 42, 0.25), 0 0 1px 1px rgba(255, 255, 255, 0.1)'
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) minmax(360px, 0.92fr)',
+          gap: '56px',
+          alignItems: 'center',
+          padding: '56px 58px',
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 62%, #eef2ff 100%)',
+          border: '1px solid rgba(15, 23, 42, 0.1)',
+          boxShadow: '0 24px 70px -30px rgba(15, 23, 42, 0.28)'
         }}>
-          {/* Window Header */}
-          <div style={{
-            padding: '12px 18px',
-            backgroundColor: '#1e293b',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
-              <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-              <span style={{ fontSize: '12px', color: '#94a3b8', marginLeft: '8px', fontFamily: 'var(--font-mono)' }}>
-                remora-agent-integration.{activeCodeTab}
-              </span>
+          <div style={{ position: 'absolute', width: '360px', height: '360px', right: '-90px', bottom: '-170px', borderRadius: '50%', background: 'rgba(129, 140, 248, 0.14)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '18px', color: '#3074FE', fontSize: '12px', fontWeight: 600 }}>
+              <Code2 size={15} />
+              <span>Small surface area. Full memory lifecycle.</span>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                onClick={() => setActiveCodeTab('ts')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '5px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  border: 'none',
-                  backgroundColor: activeCodeTab === 'ts' ? '#334155' : 'transparent',
-                  color: activeCodeTab === 'ts' ? '#ffffff' : '#94a3b8',
-                  cursor: 'pointer'
-                }}
-              >
-                TypeScript
-              </button>
-              <button
-                onClick={() => setActiveCodeTab('py')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '5px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  border: 'none',
-                  backgroundColor: activeCodeTab === 'py' ? '#334155' : 'transparent',
-                  color: activeCodeTab === 'py' ? '#ffffff' : '#94a3b8',
-                  cursor: 'pointer'
-                }}
-              >
-                Python
-              </button>
-              <button
-                onClick={copyCode}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '11px',
-                  marginLeft: '6px',
-                  backgroundColor: '#334155',
-                  border: 'none',
-                  borderRadius: '5px',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-                title="Copy code"
-              >
-                {copiedCode ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
-              </button>
+            <h2 className={`editorial-title ${cooperBt.className}`} style={{ fontSize: 'clamp(32px, 4vw, 52px)', maxWidth: '520px', color: '#0f172a', marginBottom: '18px', letterSpacing: '-0.03em' }}>
+              Add memory without rebuilding your stack.
+            </h2>
+            <p style={{ fontSize: '15px', color: '#475569', maxWidth: '510px', lineHeight: '1.7', marginBottom: '26px' }}>
+              Write a meaningful fact, retrieve ranked context before a response, and let Remora handle extraction, deduplication, decay, and history behind the API.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <Link href="/docs" className="remora-cta-btn" style={{ height: '42px', padding: '0 16px', fontSize: '13px' }}>
+                Read the integration guide
+                <ArrowRight size={15} />
+              </Link>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>TypeScript · Python</span>
             </div>
           </div>
 
-          {/* Code Window */}
-          <pre style={{
-            padding: '24px',
-            backgroundColor: '#0f172a',
-            fontSize: '13px',
-            fontFamily: 'var(--font-mono)',
-            color: activeCodeTab === 'ts' ? '#e2e8f0' : '#cffafe',
-            lineHeight: '1.65',
-            overflowX: 'auto',
-            margin: 0
-          }}>
-            {activeCodeTab === 'ts' ? tsCode : pyCode}
-          </pre>
+          <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
+            <div style={{
+              overflow: 'hidden',
+              borderRadius: '14px',
+              background: '#111827',
+              border: '1px solid rgba(255, 255, 255, 0.18)',
+              boxShadow: '0 22px 45px -20px rgba(15, 23, 42, 0.55)'
+            }}>
+              <div style={{ padding: '11px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', background: '#1f2937' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fb7185' }} />
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fbbf24' }} />
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399' }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <button onClick={() => setActiveCodeTab('ts')} style={{ position: 'relative', padding: '4px 8px', border: 0, borderRadius: '5px', background: 'transparent', color: activeCodeTab === 'ts' ? '#ffffff' : '#9ca3af', fontSize: '10px', fontWeight: 600, cursor: 'pointer', transition: 'color 0.2s ease' }}>
+                    {activeCodeTab === 'ts' && <motion.span layoutId="active-language-tab" transition={{ type: 'spring', stiffness: 420, damping: 30 }} style={{ position: 'absolute', inset: 0, borderRadius: '5px', background: '#374151' }} />}
+                    <span style={{ position: 'relative', zIndex: 1 }}>TypeScript</span>
+                  </button>
+                  <button onClick={() => setActiveCodeTab('py')} style={{ position: 'relative', padding: '4px 8px', border: 0, borderRadius: '5px', background: 'transparent', color: activeCodeTab === 'py' ? '#ffffff' : '#9ca3af', fontSize: '10px', fontWeight: 600, cursor: 'pointer', transition: 'color 0.2s ease' }}>
+                    {activeCodeTab === 'py' && <motion.span layoutId="active-language-tab" transition={{ type: 'spring', stiffness: 420, damping: 30 }} style={{ position: 'absolute', inset: 0, borderRadius: '5px', background: '#374151' }} />}
+                    <span style={{ position: 'relative', zIndex: 1 }}>Python</span>
+                  </button>
+                  <button onClick={copyCode} title="Copy full integration" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '5px', marginLeft: '3px', border: 0, borderRadius: '5px', background: '#374151', color: '#ffffff', cursor: 'pointer' }}>
+                    {copiedCode ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
+                  </button>
+                </div>
+              </div>
+              <div style={{ position: 'relative', minHeight: '250px', overflow: 'hidden', background: '#111827' }}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.pre
+                    key={activeCodeTab}
+                    initial={{ opacity: 0, y: 8, filter: 'blur(3px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -8, filter: 'blur(3px)' }}
+                    transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ minHeight: '250px', margin: 0, padding: '24px 22px', overflowX: 'auto', background: '#111827', color: activeCodeTab === 'ts' ? '#dbeafe' : '#cffafe', fontSize: '12px', fontFamily: 'var(--font-mono)', lineHeight: '1.75' }}
+                  >
+                    {codePreview}
+                  </motion.pre>
+                </AnimatePresence>
+              </div>
+              <div style={{ padding: '10px 14px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', color: '#9ca3af', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
+                context returned as &lt;user_context&gt;
+              </div>
+            </div>
+          </div>
         </div>
-      </section>      {/* Features Bento Grid */}
+      </section>
+
+      {/* Capabilities Section */}
       <motion.section
         id="features"
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        style={{ padding: '96px 24px 80px', maxWidth: '1240px', margin: '0 auto', width: '100%' }}
+        style={{ padding: '72px 24px 72px', maxWidth: '1180px', margin: '0 auto', width: '100%' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-          <span style={{
-            fontSize: '11px',
-            fontWeight: 700,
-            color: '#2563eb',
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-            padding: '5px 14px',
-            borderRadius: '9999px',
-            display: 'inline-block',
-            marginBottom: '12px'
-          }}>
-            Cognitive Capabilities
-          </span>
-          <h2 className={`editorial-title ${cooperBt.className}`} style={{ fontSize: 'clamp(30px, 3.2vw, 44px)', color: '#0f172a', marginBottom: '14px', letterSpacing: '-0.02em' }}>
-            Everything your AI agents need to remember forever
-          </h2>
-          <p style={{ fontSize: '16px', color: '#64748b', maxWidth: '640px', margin: '0 auto', lineHeight: '1.6' }}>
-            No ad-hoc database tables. No dual-database desync. A managed cognitive memory substrate with sub-15ms vector retrieval.
-          </p>
-        </div>
-
-        {/* Bento Grid */}
-        <div className="remora-bento-grid">
-          {/* Card 1: Large Bento (Span 2) - Cognitive Taxonomy */}
-          <div className="remora-bento-card remora-bento-span-2">
+        <div className="remora-capabilities-shell">
+          <div className="remora-capabilities-heading" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 0.82fr) minmax(0, 1.18fr)', gap: '64px', alignItems: 'center', marginBottom: '42px' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(37, 99, 235, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Layers size={22} color="#2563eb" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
-                  Structured Intelligence
-                </span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Cognitive capabilities
+              </span>
+              <h2 className={`editorial-title ${cooperBt.className}`} style={{ fontSize: 'clamp(30px, 3.4vw, 44px)', color: '#0f172a', margin: '10px 0 0', letterSpacing: '-0.03em' }}>
+                Memory with structure, not just storage.
+              </h2>
+            </div>
+            <p className="remora-capabilities-description" style={{ fontSize: '16px', color: '#475569', lineHeight: '1.7', maxWidth: '520px', margin: 0 }}>
+              Remora turns conversational signals into typed, ranked, and auditable memory. Each capability exists to keep context useful as an application grows.
+            </p>
+          </div>
+
+          <div className="remora-capabilities-grid">
+          <div className="remora-capability-card remora-capability-card-primary">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', marginBottom: '28px' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '11px', background: '#e8efff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Layers size={21} color="#3074FE" />
               </div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Strict Cognitive Taxonomy
-              </h3>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '22px' }}>
-                Raw chat logs cause context collapse. Remora automatically distills conversational turns into four typed cognitive classes with independent decay half-lives.
-              </p>
-
-              {/* Taxonomy Chips */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
-                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', fontFamily: 'var(--font-mono)' }}>PROFILE</span>
-                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~138d half-life</span>
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
-                    Alex • Principal Architect in Bangalore
-                  </div>
+              <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>memory.type</span>
+            </div>
+            <h3 style={{ fontSize: '23px', fontWeight: 700, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+              Typed memory
+            </h3>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.65', marginBottom: '28px', maxWidth: '500px' }}>
+              Facts, preferences, profiles, project context, instructions, goals, and decisions are stored as distinct records—not undifferentiated chat history.
+            </p>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.55 }}
+              variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+            >
+              {['FACT', 'PREFERENCE', 'PROFILE', 'PROJECT_CONTEXT', 'GOAL', 'DECISION'].map((type) => (
+                <motion.span
+                  key={type}
+                  variants={{
+                    hidden: { opacity: 0, y: 7, scale: 0.96 },
+                    visible: { opacity: 1, y: 0, scale: 1 }
+                  }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{ y: -2, borderColor: '#9bb9ef', backgroundColor: '#eef5ff' }}
+                  style={{ padding: '6px 9px', borderRadius: '6px', border: '1px solid #dbe4f5', background: '#f8fbff', color: '#35558b', fontSize: '10px', fontFamily: 'var(--font-mono)', cursor: 'default' }}
+                >
+                  {type}
+                </motion.span>
+              ))}
+            </motion.div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5edf8' }}>
+              {[
+                { value: '06', label: 'core types' },
+                { value: '01', label: 'shared record' },
+                { value: '∞', label: 'across sessions' }
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div style={{ color: '#0f172a', fontSize: '18px', fontWeight: 700, letterSpacing: '-0.03em' }}>{stat.value}</div>
+                  <div style={{ color: '#94a3b8', fontSize: '10px', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>{stat.label}</div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', fontFamily: 'var(--font-mono)' }}>PREFERENCE</span>
-                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~35d half-life</span>
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
-                    Strictly TypeScript & Next.js App Router
-                  </div>
-                </div>
+          <div className="remora-capability-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles size={18} color="#059669" />
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>confidence</span>
+            </div>
+            <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Deduplication</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.6', marginBottom: '20px' }}>
+              Repeated statements reinforce an existing memory instead of creating another row.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ flex: 1, height: '6px', borderRadius: '99px', background: '#e2e8f0', overflow: 'hidden' }}>
+                <div style={{ width: '93%', height: '100%', borderRadius: '99px', background: '#10b981' }} />
+              </div>
+              <span style={{ color: '#059669', fontSize: '12px', fontWeight: 700 }}>0.93</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', color: '#94a3b8', fontSize: '11px' }}>
+              <span>similarity threshold</span>
+              <span>confidence +0.05</span>
+            </div>
+          </div>
 
-                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#d97706', fontFamily: 'var(--font-mono)' }}>FACT</span>
-                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>Permanent</span>
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
-                    Production DB is PostgreSQL 16 on Neon
-                  </div>
-                </div>
+          <div className="remora-capability-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Clock size={18} color="#d97706" />
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>recency</span>
+            </div>
+            <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Time-aware ranking</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+              Relevance is balanced with importance, confidence, and the age of a memory before it reaches the prompt.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '42px', padding: '0 4px' }}>
+              {[92, 78, 61, 48, 36, 26].map((height, index) => (
+                <div key={height} style={{ flex: 1, height: `${height}%`, borderRadius: '4px 4px 2px 2px', background: index < 2 ? '#f59e0b' : '#fed7aa' }} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '7px', color: '#94a3b8', fontSize: '11px' }}>
+              <span>newer context</span>
+              <span>older context</span>
+            </div>
+          </div>
 
-                <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', fontFamily: 'var(--font-mono)' }}>PROJECT_CONTEXT</span>
-                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>~14d half-life</span>
+          <div className="remora-capability-card remora-capability-card-wide">
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(230px, 0.8fr)', gap: '30px', alignItems: 'center' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Database size={18} color="#0284c7" />
                   </div>
-                  <div style={{ fontSize: '12.5px', color: '#1e293b', fontWeight: 500 }}>
-                    HNSW cosine index with 1536-dim vectors
-                  </div>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>single substrate</span>
                 </div>
+                <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>One record, one source of truth</h3>
+                <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.6', margin: 0 }}>
+                  Vectors, metadata, and version history stay together in PostgreSQL. No second system to synchronize or reconcile.
+                </p>
+              </div>
+              <div style={{ padding: '15px', borderRadius: '10px', background: '#f8fafc', border: '1px solid #e2e8f0', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#475569', lineHeight: '1.9' }}>
+                <div><span style={{ color: '#0284c7' }}>memory</span> <span style={{ color: '#94a3b8' }}>→</span> content</div>
+                <div><span style={{ color: '#0284c7' }}>memory</span> <span style={{ color: '#94a3b8' }}>→</span> embedding</div>
+                <div><span style={{ color: '#0284c7' }}>memory</span> <span style={{ color: '#94a3b8' }}>→</span> versions[]</div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Span 1 - Auto Deduplication */}
-          <div className="remora-bento-card">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sparkles size={22} color="#059669" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', backgroundColor: 'rgba(16, 185, 129, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
-                  sim &gt; 0.93
-                </span>
+          <div className="remora-capability-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Zap size={18} color="#7c3aed" />
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Auto Deduplication
-              </h3>
-              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
-                Users repeat preferences across dozens of sessions. Remora calculates cosine similarity and boosts confidence instead of duplicating rows.
-              </p>
-
-              {/* Progress Box */}
-              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
-                  <span style={{ color: '#64748b', fontWeight: 500 }}>Confidence Rating</span>
-                  <strong style={{ color: '#059669' }}>95% (+0.05 / repeat)</strong>
-                </div>
-                <div style={{ width: '100%', height: '8px', backgroundColor: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
-                  <div style={{ width: '95%', height: '100%', backgroundColor: '#10b981', borderRadius: '9999px' }} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginTop: '8px' }}>
-                  <span>5 mentions detected</span>
-                  <span>0 DB rows created</span>
-                </div>
-              </div>
+              <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>ingestion</span>
+            </div>
+            <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Async by default</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+              Conversation ingestion returns <code style={{ color: '#7c3aed' }}>202 Accepted</code>. Extraction and embedding continue off the request path.
+            </p>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#7c3aed', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#a78bfa' }} />
+              worker queue active
             </div>
           </div>
 
-          {/* Card 3: Span 1 - Ebbinghaus Time Decay */}
-          <div className="remora-bento-card">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Clock size={22} color="#d97706" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#d97706', backgroundColor: 'rgba(245, 158, 11, 0.08)', padding: '3px 10px', borderRadius: '9999px', fontFamily: 'var(--font-mono)' }}>
-                  R = e^(-λ·Δt)
-                </span>
+          <div className="remora-capability-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldCheck size={18} color="#334155" />
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Ebbinghaus Decay Curve
-              </h3>
-              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '16px' }}>
-                Avoids surfacing 6-month-old obsolete plans over yesterday's updates. Semantic score is exponentially weighted with elapsed time.
-              </p>
-
-              {/* Decay visualization */}
-              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11.5px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Yesterday</span>
-                  <strong style={{ color: '#059669' }}>98% retention</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>30 Days</span>
-                  <strong style={{ color: '#d97706' }}>54% retention</strong>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>180 Days</span>
-                  <strong style={{ color: '#ef4444' }}>12% decayed</strong>
-                </div>
-              </div>
+              <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>scope</span>
+            </div>
+            <h3 style={{ fontSize: '19px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Tenant-aware by design</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
+              Every read and write is scoped to the organization, project, and external user.
+            </p>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['org_id', 'project_id', 'user_id'].map((scope) => (
+                <span key={scope} style={{ padding: '5px 7px', borderRadius: '5px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#475569', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>{scope}</span>
+              ))}
             </div>
           </div>
-
-          {/* Card 4: Span 2 - Unified Neon Architecture */}
-          <div className="remora-bento-card remora-bento-span-2">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(6, 182, 212, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Database size={22} color="#0891b2" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0891b2', backgroundColor: 'rgba(6, 182, 212, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
-                  Single ACID Database
-                </span>
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Unified Neon pgvector Architecture
-              </h3>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
-                Splitting vectors into Pinecone and metadata into PostgreSQL causes orphan embeddings, dual billing, and race conditions. Remora stores 1536-dim vectors, JSON audits, and metadata in one PostgreSQL table.
-              </p>
-
-              {/* Comparison visual */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div style={{ backgroundColor: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '10px', padding: '12px', fontSize: '12px' }}>
-                  <div style={{ color: '#be123c', fontWeight: 700, marginBottom: '4px' }}>✕ Traditional Naive Setup</div>
-                  <div style={{ color: '#881337', lineHeight: '1.4' }}>Pinecone + Postgres sync bugs, race conditions, and prompt token bloat.</div>
-                </div>
-                <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px', fontSize: '12px' }}>
-                  <div style={{ color: '#15803d', fontWeight: 700, marginBottom: '4px' }}>✓ Remora Unified Substrate</div>
-                  <div style={{ color: '#166534', lineHeight: '1.4' }}>Atomic Neon pgvector transactions with sub-15ms p95 vector retrieval.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 5: Span 1 - Async BullMQ */}
-          <div className="remora-bento-card">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Zap size={22} color="#7c3aed" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', backgroundColor: 'rgba(168, 85, 247, 0.08)', padding: '3px 10px', borderRadius: '9999px' }}>
-                  HTTP 202
-                </span>
-              </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Async BullMQ Pipeline
-              </h3>
-              <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: '1.6', marginBottom: '16px' }}>
-                Synchronous extraction adds 2–3s to chatbot turns. Remora returns an immediate <code>202 Accepted</code>, offloading extraction to worker queues.
-              </p>
-
-              <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: '#7c3aed', letterSpacing: '-0.02em' }}>~ 0 ms</div>
-                <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>Added chat latency</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 6: Span 2 - Multi-Tenant Security & GDPR */}
-          <div className="remora-bento-card remora-bento-span-2">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', backgroundColor: 'rgba(15, 23, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ShieldCheck size={22} color="#0f172a" />
-                </div>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a', backgroundColor: '#f1f5f9', padding: '3px 10px', borderRadius: '9999px' }}>
-                  Enterprise Isolation
-                </span>
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.01em' }}>
-                Multi-Tenant Scoping & GDPR Article 17
-              </h3>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.6', marginBottom: '18px' }}>
-                Composite SQL scoping guarantees zero vector leakage across organizations. Built-in compliance endpoints execute complete cryptographic cascade purges in milliseconds.
-              </p>
-
-              {/* Scoping Tags */}
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
-                  org_enterprise_id
-                </span>
-                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
-                  project_fleet_id
-                </span>
-                <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 10px', borderRadius: '6px', color: '#334155' }}>
-                  external_user_id
-                </span>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px' }}>
-                  ✓ GDPR Forget User Ready
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Pricing Section */}
+      {/* Deployment Section */}
       <section id="pricing" style={{
-        padding: '80px 24px',
-        backgroundColor: '#f1f5f9',
+        padding: '104px 24px 112px',
+        backgroundColor: '#f8fafc',
         borderTop: '1px solid rgba(15, 23, 42, 0.08)',
         borderBottom: '1px solid rgba(15, 23, 42, 0.08)'
       }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
-          <span style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: '#059669',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            backgroundColor: 'rgba(16, 185, 129, 0.12)',
-            padding: '4px 12px',
-            borderRadius: '9999px',
-            display: 'inline-block',
-            marginBottom: '10px'
-          }}>
-            Simple Pricing
-          </span>
-          <h2 className="editorial-title" style={{ fontSize: '38px', color: '#0f172a', marginBottom: '12px' }}>
-            Start free, scale seamlessly
-          </h2>
-          <p style={{ fontSize: '16px', color: '#475569', marginBottom: '48px' }}>
-            Transparent developer pricing designed to grow with your agent traffic.
-          </p>
+        <div style={{ maxWidth: '1180px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '680px', marginBottom: '44px' }}>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              color: '#475569',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em'
+            }}>
+              Deployment options
+            </span>
+            <h2 className={`editorial-title ${cooperBt.className}`} style={{ fontSize: 'clamp(30px, 3.4vw, 46px)', color: '#0f172a', margin: '12px 0 14px', letterSpacing: '-0.02em' }}>
+              One memory layer, from prototype to production.
+            </h2>
+            <p style={{ fontSize: '16px', color: '#475569', lineHeight: '1.65', margin: 0 }}>
+              Start with the same API and move to stronger isolation, higher limits, and operational support when your application requires it.
+            </p>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', textAlign: 'left' }}>
-            {/* Free Tier */}
-            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Developer</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For prototypes and side projects.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>$0 <span style={{ fontSize: '14px', color: '#64748b' }}>/ forever</span></div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Up to 100,000 vector memories</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Full TypeScript & Python SDKs</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Interactive Search Playground</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Community Support</li>
-              </ul>
-              <Link
-                href="/auth/signup"
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '11px',
-                  textAlign: 'center',
-                  backgroundColor: '#f1f5f9',
-                  color: '#0f172a',
-                  borderRadius: '8px',
-                  fontWeight: 500,
-                  textDecoration: 'none'
-                }}
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Pro Tier */}
-            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '2px solid #4f46e5', boxShadow: '0 8px 30px rgba(79, 70, 229, 0.12)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Production</h3>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#4f46e5', backgroundColor: 'rgba(99, 102, 241, 0.1)', padding: '2px 8px', borderRadius: '9999px' }}>Most Popular</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', alignItems: 'stretch' }}>
+            {/* Developer plan */}
+            <motion.div className="remora-deployment-card" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }} style={{ backgroundColor: '#ffffff', padding: '28px', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.1)', display: 'flex', flexDirection: 'column' }}>
+              <motion.div className="remora-deployment-check" initial={{ bottom: '-72px', opacity: 1 }} whileInView={{ bottom: '40%', opacity: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.9, delay: 0.12, ease: [0.16, 1, 0.3, 1] }} aria-hidden="true">
+                <Check size={24} strokeWidth={2.5} />
+              </motion.div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Developer</h3>
+                <span style={{ fontSize: '12px', color: '#64748b' }}>For evaluation</span>
               </div>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For production AI agents and apps.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>$49 <span style={{ fontSize: '14px', color: '#64748b' }}>/ month</span></div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> 2,000,000 vector memories</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Asynchronous BullMQ Ingestion</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Hot Redis 7 Context Caching</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Automated TTL Expiration Cron</li>
+              <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.55', minHeight: '42px', margin: '10px 0 18px' }}>
+                Build and test memory-backed features without changing your application architecture.
+              </p>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: '22px' }}>
+                $0 <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>/ forever</span>
+              </div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '13px', color: '#475569', padding: 0, margin: '0 0 28px', flex: 1 }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Up to 100,000 memories</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> TypeScript and Python SDKs</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Search Playground access</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Community support</li>
               </ul>
-              <Link
-                href="/auth/signup"
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '11px',
-                  textAlign: 'center',
-                  backgroundColor: '#0f172a',
-                  color: '#ffffff',
-                  borderRadius: '8px',
-                  fontWeight: 600,
-                  textDecoration: 'none'
-                }}
-              >
-                Start 14-Day Free Trial
+              <Link href="/auth/signup" style={{ display: 'block', width: '100%', padding: '11px', textAlign: 'center', backgroundColor: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: 600, textDecoration: 'none' }}>
+                Create an account
               </Link>
-            </div>
+            </motion.div>
 
-            {/* Enterprise Tier */}
-            <div style={{ backgroundColor: '#ffffff', padding: '32px', borderRadius: '16px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#0f172a' }}>Enterprise</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>For large scale fleets & VPCs.</p>
-              <div style={{ fontSize: '36px', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>Custom</div>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', marginBottom: '28px' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Unlimited memories & projects</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> Dedicated Neon pgvector VPC</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> 99.99% Uptime SLA & BAA</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle2 size={15} color="#059669" /> SAML SSO & Dedicated Architect</li>
+            {/* Production plan */}
+            <motion.div className="remora-deployment-card remora-deployment-card-featured" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1] }} style={{ backgroundColor: '#ffffff', padding: '28px', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.18)', display: 'flex', flexDirection: 'column' }}>
+              <motion.div className="remora-deployment-check" initial={{ bottom: '-72px', opacity: 1 }} whileInView={{ bottom: '40%', opacity: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.9, delay: 0.28, ease: [0.16, 1, 0.3, 1] }} aria-hidden="true">
+                <Check size={24} strokeWidth={2.5} />
+              </motion.div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Production</h3>
+                <span style={{ fontSize: '12px', color: '#3074FE' }}>For live applications</span>
+              </div>
+              <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.55', minHeight: '42px', margin: '10px 0 18px' }}>
+                Keep ingestion off the request path and serve context from a managed, low-latency memory layer.
+              </p>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: '22px' }}>
+                $49 <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>/ month</span>
+              </div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '13px', color: '#475569', padding: 0, margin: '0 0 28px', flex: 1 }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Up to 2,000,000 memories</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Asynchronous conversation ingestion</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Redis context caching</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> TTL and lifecycle controls</li>
               </ul>
-              <Link
-                href="/auth/signup"
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  padding: '11px',
-                  textAlign: 'center',
-                  backgroundColor: '#f1f5f9',
-                  color: '#0f172a',
-                  borderRadius: '8px',
-                  fontWeight: 500,
-                  textDecoration: 'none'
-                }}
-              >
-                Contact Enterprise
+              <Link href="/auth/signup" style={{ display: 'block', width: '100%', padding: '11px', textAlign: 'center', backgroundColor: '#0f172a', color: '#ffffff', borderRadius: '8px', fontWeight: 700, textDecoration: 'none' }}>
+                Start with Production
               </Link>
-            </div>
+            </motion.div>
+
+            {/* Enterprise plan */}
+            <motion.div className="remora-deployment-card" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, delay: 0.16, ease: [0.16, 1, 0.3, 1] }} style={{ backgroundColor: '#ffffff', padding: '28px', borderRadius: '14px', border: '1px solid rgba(15, 23, 42, 0.1)', display: 'flex', flexDirection: 'column' }}>
+              <motion.div className="remora-deployment-check" initial={{ bottom: '-72px', opacity: 1 }} whileInView={{ bottom: '40%', opacity: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.9, delay: 0.42, ease: [0.16, 1, 0.3, 1] }} aria-hidden="true">
+                <Check size={24} strokeWidth={2.5} />
+              </motion.div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Enterprise</h3>
+                <span style={{ fontSize: '12px', color: '#64748b' }}>For governed deployments</span>
+              </div>
+              <p style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.55', minHeight: '42px', margin: '10px 0 18px' }}>
+                Apply organization-level controls across projects, users, data retention, and access policies.
+              </p>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.03em', marginBottom: '22px' }}>Custom</div>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '11px', fontSize: '13px', color: '#475569', padding: 0, margin: '0 0 28px', flex: 1 }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Multiple projects and namespaces</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Dedicated database isolation</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Tenant-scoped access and key management</li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><CheckCircle2 size={15} color="#3074FE" style={{ marginTop: '1px', flexShrink: 0 }} /> Purge and export workflows</li>
+              </ul>
+              <Link href="/auth/signup" style={{ display: 'block', width: '100%', padding: '11px', textAlign: 'center', backgroundColor: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '8px', fontWeight: 600, textDecoration: 'none' }}>
+                Talk to Remora
+              </Link>
+            </motion.div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '24px', color: '#64748b', fontSize: '12px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3074FE', flexShrink: 0 }} />
+            All plans use the same memory model, retrieval API, and prompt-context contract.
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{
-        padding: '60px 24px 40px',
-        maxWidth: '1240px',
-        margin: '0 auto',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '40px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '32px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <BrainCircuit size={16} color="#ffffff" />
+      <footer className="remora-site-footer">
+        <div className="remora-site-footer-inner">
+          <div className="remora-site-footer-top">
+            <Link href="/" className="remora-footer-brand">Remora</Link>
+
+            <div className="remora-footer-nav">
+              <div className="remora-footer-column">
+                <span className="remora-footer-heading">Products</span>
+                <Link href="/#pricing">Pricing</Link>
+                <Link href="/dashboard">Console</Link>
+                <Link href="/docs">API</Link>
+                <Link href="/docs">SDKs</Link>
               </div>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Remora</span>
+
+              <div className="remora-footer-column">
+                <span className="remora-footer-heading">Resources</span>
+                <Link href="/docs">Documentation</Link>
+                <Link href="/docs">Quickstart</Link>
+                <Link href="/#features">Capabilities</Link>
+                <Link href="/docs">Glossary</Link>
+              </div>
+
+              <div className="remora-footer-column">
+                <span className="remora-footer-heading">Company</span>
+                <Link href="/#why-remora">About Remora</Link>
+                <Link href="/docs">Security</Link>
+                <Link href="/docs">Contact us</Link>
+                <Link href="/docs">Help center</Link>
+              </div>
             </div>
-            <p style={{ fontSize: '13px', color: '#64748b', maxWidth: '280px', lineHeight: '1.5' }}>
-              Open-core AI memory infrastructure layer for production agents and LLMs.
-            </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '48px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#0f172a' }}>Product</strong>
-              <Link href="/#features" style={{ color: '#64748b', textDecoration: 'none' }}>Features</Link>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Documentation</Link>
-              <Link href="/#pricing" style={{ color: '#64748b', textDecoration: 'none' }}>Pricing</Link>
-              <Link href="/dashboard" style={{ color: '#64748b', textDecoration: 'none' }}>Console</Link>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#0f172a' }}>SDKs</strong>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>TypeScript (@remora/sdk)</Link>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Python (remora-ai)</Link>
-              <a href="http://localhost:4000/docs" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', textDecoration: 'none' }}>
-                OpenAPI Reference
-              </a>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <strong style={{ color: '#0f172a' }}>Legal</strong>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>GDPR Compliance</Link>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</Link>
-              <Link href="/docs" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</Link>
+          <div className="remora-site-footer-bottom">
+            <span>© 2026 Remora. All rights reserved.</span>
+            <div className="remora-footer-bottom-right">
+              <div className="remora-footer-legal">
+                <Link href="/docs">Privacy</Link>
+                <Link href="/docs">Terms</Link>
+                <Link href="/docs">Copyright</Link>
+              </div>
+              <span className="remora-footer-divider" aria-hidden="true" />
+              <div className="remora-footer-socials" aria-label="Social links">
+                <span aria-label="YouTube">▶</span>
+                <span aria-label="X">𝕏</span>
+                <span aria-label="LinkedIn">in</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{
-          paddingTop: '24px',
-          borderTop: '1px solid rgba(15, 23, 42, 0.08)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '12px',
-          color: '#64748b'
-        }}>
-          <span>© 2026 Remora AI Inc. All rights reserved.</span>
-          <span>Crafted with Neon pgvector, Redis, and Next.js.</span>
-        </div>
+        <div className="remora-footer-ascii" aria-hidden="true">REMORA</div>
       </footer>
     </div>
   );
