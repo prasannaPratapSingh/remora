@@ -28,32 +28,22 @@ export const metadata: Metadata = {
   description: "Enterprise memory infrastructure for AI applications. Stateful, vector-indexed, evolving knowledge for LLMs with zero latency.",
 };
 
-const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const htmlContent = (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${cooperBt.variable}`}>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body>{children}</body>
-    </html>
+  return (
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      appearance={dark}
+    >
+      <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} ${cooperBt.variable}`}>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </head>
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
-
-  if (clerkPublishableKey) {
-    return (
-      <ClerkProvider
-        publishableKey={clerkPublishableKey}
-        appearance={dark}
-      >
-        {htmlContent}
-      </ClerkProvider>
-    );
-  }
-
-  return htmlContent;
 }
