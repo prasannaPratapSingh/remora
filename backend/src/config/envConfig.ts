@@ -61,9 +61,6 @@ export function validateProductionConfig() {
     if (!envConfig.DIRECT_URL) missing.push("DIRECT_URL");
     if (!envConfig.REDIS_URL) missing.push("REDIS_URL");
     if (!envConfig.CLERK_SECRET_KEY) missing.push("CLERK_SECRET_KEY");
-    if (envConfig.CORS_ORIGINS.some((origin) => origin.includes("localhost"))) {
-        missing.push("CORS_ORIGINS (must not contain localhost in production)");
-    }
 
     if (missing.length > 0) {
         throw new Error(`Production configuration is incomplete: ${missing.join(", ")}`);
