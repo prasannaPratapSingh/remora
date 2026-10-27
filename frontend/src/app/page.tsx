@@ -64,7 +64,7 @@ export default function LandingPage() {
   const [activeCodeTab, setActiveCodeTab] = useState<'ts' | 'py'>('ts');
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const tsCode = `import { RemoraClient } from "@remora/sdk";
+  const tsCode = `import { RemoraClient } from "@ai-remora/sdk";
 
 const remora = new RemoraClient({
   apiKey: process.env.REMORA_API_KEY!
@@ -113,7 +113,7 @@ prompt_ctx = remora.context(user_id="user_alex", query="tech stack")`;
   };
 
   const codePreview = activeCodeTab === 'ts'
-    ? `import { RemoraClient } from "@remora/sdk";
+    ? `import { RemoraClient } from "@ai-remora/sdk";
 
 const remora = new RemoraClient({ apiKey });
 

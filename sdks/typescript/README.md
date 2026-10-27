@@ -1,4 +1,4 @@
-# @remora/sdk
+# @ai-remora/sdk
 
 > **Developer-first AI Memory Infrastructure Client** for persistent, evolving agent memory.
 
@@ -7,9 +7,9 @@
 ## 📦 Installation
 
 ```bash
-npm install @remora/sdk
+npm install @ai-remora/sdk
 # or
-bun add @remora/sdk
+bun add @ai-remora/sdk
 ```
 
 ---
@@ -17,7 +17,7 @@ bun add @remora/sdk
 ## 🚀 Quickstart
 
 ```typescript
-import { RemoraClient } from "@remora/sdk";
+import { RemoraClient } from "@ai-remora/sdk";
 
 const remora = new RemoraClient({
     apiKey: process.env.REMORA_API_KEY || "rl_live_your_key_here",

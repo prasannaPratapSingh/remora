@@ -39,7 +39,7 @@ export default function DocsPage() {
     {
       title: 'OFFICIAL CLIENT SDKS',
       items: [
-        { id: 'typescript' as const, label: 'TypeScript (@remora/sdk)' },
+        { id: 'typescript' as const, label: 'TypeScript (@ai-remora/sdk)' },
         { id: 'python' as const, label: 'Python (remora-ai)' }
       ]
     },
@@ -254,7 +254,7 @@ export default function DocsPage() {
               <div>
                 <span className="badge badge-indigo" style={{ marginBottom: '10px' }}>npm package</span>
                 <h1 className="editorial-title" style={{ fontSize: '36px', color: '#ffffff', marginBottom: '12px' }}>
-                  TypeScript SDK (@remora/sdk)
+                  TypeScript SDK (@ai-remora/sdk)
                 </h1>
                 <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
                   Fully typed TypeScript/JavaScript client built for Bun, Node.js, Next.js, and Cloudflare Workers.
@@ -265,16 +265,16 @@ export default function DocsPage() {
                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>Installation</h2>
                 <div style={{ position: 'relative', marginBottom: '20px' }}>
                   <pre style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '14px', borderRadius: '8px', color: '#c7d2fe', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
-                    bun add @remora/sdk  # or npm install @remora/sdk
+                    bun add @ai-remora/sdk  # or npm install @ai-remora/sdk
                   </pre>
-                  <button onClick={() => copy('bun add @remora/sdk', 'ts-install')} className="btn-secondary" style={{ position: 'absolute', right: '10px', top: '10px', padding: '4px 8px', fontSize: '11px' }}>
+                  <button onClick={() => copy('bun add @ai-remora/sdk', 'ts-install')} className="btn-secondary" style={{ position: 'absolute', right: '10px', top: '10px', padding: '4px 8px', fontSize: '11px' }}>
                     {copiedCode === 'ts-install' ? <Check size={12} color="var(--accent-emerald)" /> : <Copy size={12} />}
                   </button>
                 </div>
 
                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>Example Usage</h2>
                 <pre style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '18px', borderRadius: '8px', color: '#f8fafc', fontFamily: 'var(--font-mono)', fontSize: '13px', lineHeight: '1.6', overflowX: 'auto' }}>
-{`import { RemoraClient } from "@remora/sdk";
+{`import { RemoraClient } from "@ai-remora/sdk";
 
 const remora = new RemoraClient({
   apiKey: process.env.REMORA_API_KEY!,

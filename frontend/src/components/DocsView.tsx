@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../lib/api';
 
 export const DocsView: React.FC = () => {
   const [sdk, setSdk] = useState<'ts' | 'py'>('ts'); const [copied, setCopied] = useState(false);
-  const ts = `import { RemoraClient } from "@remora/sdk";\n\nconst remora = new RemoraClient({\n  apiKey: process.env.REMORA_API_KEY!,\n  baseUrl: process.env.REMORA_BASE_URL\n});\n\nconst context = await remora.context({\n  userId: "user-prasanna",\n  query: "What does this project use?"\n});`;
+  const ts = `import { RemoraClient } from "@ai-remora/sdk";\n\nconst remora = new RemoraClient({\n  apiKey: process.env.REMORA_API_KEY!,\n  baseUrl: process.env.REMORA_BASE_URL\n});\n\nconst context = await remora.context({\n  userId: "user-prasanna",\n  query: "What does this project use?"\n});`;
   const py = `from remora import RemoraClient\n\nremora = RemoraClient(\n    api_key="rl_live_...",\n    base_url="https://api.remora.ai"\n)\n\ncontext = remora.context(\n    user_id="user-prasanna",\n    query="What does this project use?"\n)`;
   const code = sdk === 'ts' ? ts : py; const copy = () => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1800); };
   const endpoints = [{ method: 'POST', path: '/v1/memories', desc: 'Store a durable memory' }, { method: 'POST', path: '/v1/memories/ingest', desc: 'Extract memories in the background' }, { method: 'POST', path: '/v1/memories/search', desc: 'Run hybrid semantic search' }, { method: 'POST', path: '/v1/memories/context', desc: 'Generate prompt-ready context' }, { method: 'GET', path: '/v1/memories', desc: 'List scoped memories' }, { method: 'DELETE', path: '/v1/memories/users/:userId', desc: 'Delete user data' }];

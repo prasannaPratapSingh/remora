@@ -1,5 +1,5 @@
 {
-  "name": "@remora/sdk",
+  "name": "@ai-remora/sdk",
   "version": "0.1.0",
   "description": "Official TypeScript & JavaScript SDK for Remora AI Memory Infrastructure",
   "main": "dist/index.js",

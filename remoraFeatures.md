@@ -22,7 +22,7 @@
 7. [API Specification & Endpoints](#7-api-specification--endpoints)
 8. [Multi-Tenant Isolation & Enterprise Security](#8-multi-tenant-isolation--enterprise-security)
 9. [Multi-LLM & Embedding Provider Flexibility](#9-multi-llm--embedding-provider-flexibility)
-10. [TypeScript SDK (`@remora/sdk`) & Integration Patterns](#10-typescript-sdk-remorasdk--integration-patterns)
+10. [TypeScript SDK (`@ai-remora/sdk`) & Integration Patterns](#10-typescript-sdk-ai-remorasdk--integration-patterns)
 11. [Prompt Injection Standard: The `<user_context>` Contract](#11-prompt-injection-standard-the-user_context-contract)
 12. [Feature Matrix: Remora vs. Traditional Approaches](#12-feature-matrix-remora-vs-traditional-approaches)
 
@@ -575,13 +575,19 @@ If an alternative provider (such as Groq or a lightweight local model) does not 
 
 ---
 
-## 10. TypeScript SDK (`@remora/sdk`) & Integration Patterns
+## 10. TypeScript SDK (`@ai-remora/sdk`) & Integration Patterns
 
 The official TypeScript SDK is located at `sdks/typescript/src`.
 
 ### Installation & Initialization
+```bash
+npm install @ai-remora/sdk
+# or
+bun add @ai-remora/sdk
+```
+
 ```typescript
-import { RemoraClient } from "@remora/sdk";
+import { RemoraClient } from "@ai-remora/sdk";
 
 const remora = new RemoraClient({
   apiKey: process.env.REMORA_API_KEY!,
@@ -684,7 +690,7 @@ Use these memories only when relevant.
 
 When integrating Remora into any AI Agent or autonomous workflow:
 1. **Do not create custom memory tables.**
-2. Initialize `@remora/sdk` with `REMORA_API_KEY`.
+2. Initialize `@ai-remora/sdk` with `REMORA_API_KEY`.
 3. Use `remora.add()` to store facts or `remora.ingest()` for raw conversation threads.
 4. Call `remora.context()` before emitting an LLM completion and inject `contextText` into the system prompt.
 5. Remora automatically handles vectorization, deduplication, time decay, pgvector querying, and prompt hygiene.

@@ -143,7 +143,7 @@ Compact Context Formatter → Injected into Application LLM
 - **Interactive OpenAPI 3.0 Documentation (`/docs` & `/openapi.json`)**:
   - Complete OpenAPI 3.0 specification covering all endpoints, parameters, schemas, and security schemes.
   - State-of-the-art interactive API console served at `/docs` using Scalar API reference.
-- **Official TypeScript SDK (`@remora/sdk` in `sdk/`)**:
+- **Official TypeScript SDK (`@ai-remora/sdk` in `sdks/typescript/`)**:
   - Zero-dependency client library providing typed primitives:
     - `remora.add()`: Store individual memory.
     - `remora.search()`: Hybrid semantic retrieval.
@@ -197,7 +197,7 @@ Compact Context Formatter → Injected into Application LLM
   - Structured following tier-1 infrastructure platform standards (Stripe, Vercel, Supabase):
     1. **Modern Editorial Landing Page (`/`)**:
        - Uses Google's **Newsreader serif typography** (`--font-serif`) for high-impact editorial headings, paired with Geist Sans for UI precision.
-       - Interactive hero terminal with live TypeScript (`@remora/sdk`) and Python (`remora-ai`) code switcher.
+       - Interactive hero terminal with live TypeScript (`@ai-remora/sdk`) and Python (`remora-ai`) code switcher.
        - Performance proof metrics (`1536-dim HNSW`, `42ms p95`, `0ms added chat latency`).
        - 6-part feature matrix and 3-tier pricing table (Developer $0, Production $49, Enterprise Custom).
     2. **Authentication & Multi-Tenant Authorization (`/auth/signin` & `/auth/signup`)**:
@@ -248,7 +248,7 @@ In an infrastructure product (like Stripe, Twilio, or Mem0), the API is the engi
 In modern developer-first platforms (like Supabase, Vercel, or Stripe), housing multiple SDKs in a unified `sdks/` directory (`sdks/typescript`, `sdks/python`) within the monorepo provides optimal maintainability:
 1. **Single Source of Truth:** API changes, OpenAPI schema updates, and multi-language client implementations evolve together in git history.
 2. **Independent Package Registry Publishing:** 
-   - `sdks/typescript/` publishes `@remora/sdk` to npm registry (`bun run build` + `npm publish --access public`).
+   - `sdks/typescript/` publishes `@ai-remora/sdk` to npm registry (`bun run build` + `npm publish --access public`).
    - `sdks/python/` publishes `remora-ai` to PyPI (`python3 -m build` + `twine upload dist/*`).
 3. **Zero Leaky Abstractions:** Each SDK is written idiomatically for its runtime (Bun/TypeScript for JS/TS with full typing; zero external dependencies using Python's standard library `urllib` for Python).
 
