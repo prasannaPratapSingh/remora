@@ -238,11 +238,7 @@ export default function DashboardConsolePage() {
   };
 
   if (loadingAuth) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
-        Authenticating developer workspace...
-      </div>
-    );
+    return <div className="dashboard-loading"><div className="dashboard-loading-mark">R</div><span>Preparing your workspace…</span></div>;
   }
 
   return (
@@ -259,63 +255,25 @@ export default function DashboardConsolePage() {
       />
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div className="dashboard-main">
         {/* Top User Bar */}
-        <header style={{
-          height: '60px',
-          borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'rgba(13, 18, 29, 0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 clamp(18px, 3vw, 40px)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-            <span className="dashboard-kicker">Workspace</span>
-            <strong style={{ fontSize: '13px', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Building2 size={14} color="var(--accent-indigo)" />
-              {user?.organizationName || 'Primary Workspace'}
-            </strong>
-            <span className="badge badge-emerald" style={{ fontSize: '10px' }}>
-              {user?.role || 'Owner'}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="dashboard-sync-status">
-              <span className={backendStatus.online ? 'dashboard-status-dot is-online' : 'dashboard-status-dot'} />
-              <span>{isSyncing ? 'Syncing' : backendStatus.online ? 'Live' : 'Offline'}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+        <header className="dashboard-topbar">
+          <div className="dashboard-topbar-workspace"><span className="dashboard-kicker">Workspace</span><strong><Building2 size={14} />{user?.organizationName || 'Primary Workspace'}</strong><span className="dashboard-role">{user?.role || 'Owner'}</span></div>
+          <div className="dashboard-topbar-actions"><div className="dashboard-sync-status"><span className={backendStatus.online ? 'dashboard-status-dot is-online' : 'dashboard-status-dot'} /><span>{isSyncing ? 'Syncing' : backendStatus.online ? 'Live' : 'Offline'}</span></div><div className="dashboard-user">
               {clerkUser?.imageUrl ? (
                 <img
                   src={clerkUser.imageUrl}
                   alt={user?.name || 'User'}
-                  style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
+                   className="dashboard-avatar"
                 />
               ) : (
-                <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--accent-indigo)',
-                  fontWeight: 600,
-                  fontSize: '12px'
-                }}>
+                <div className="dashboard-avatar dashboard-avatar-fallback">
                   {user?.name?.[0] || 'U'}
                 </div>
               )}
-               <span className="dashboard-user-name">{user?.name || 'Developer'}</span>
-            </div>
-
-            <button
+              <span className="dashboard-user-name">{user?.name || 'Developer'}</span></div><button
               onClick={handleSignOut}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px', gap: '6px' }}
+               className="dashboard-button dashboard-button-ghost dashboard-button-small"
               title="Sign Out"
             >
               <LogOut size={13} />
@@ -325,7 +283,7 @@ export default function DashboardConsolePage() {
         </header>
 
         {/* Tab Views */}
-        <main style={{ flex: 1, padding: 'clamp(22px, 4vw, 48px) clamp(18px, 3vw, 40px)', overflowY: 'auto', maxWidth: '1500px', width: '100%' }}>
+        <main className="dashboard-content">
           {syncError && (
             <div className="dashboard-sync-banner" role="status">
               <span>{syncError}</span>
@@ -393,61 +351,27 @@ export default function DashboardConsolePage() {
 
       {/* New Project Modal */}
       {isNewProjectOpen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100
-        }}>
-          <div className="glass-panel" style={{
-            width: '100%',
-            maxWidth: '440px',
-            padding: '24px',
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-highlight)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FolderGit2 size={18} color="var(--accent-indigo)" />
-                <h3 style={{ fontSize: '17px', fontWeight: 600, color: '#ffffff' }}>Create New Project</h3>
-              </div>
-              <button onClick={() => setIsNewProjectOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateProject} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div>
-                <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                  Project Name
-                </label>
-                <input
+        <div className="dashboard-modal-backdrop"><div className="dashboard-modal">
+             <div className="dashboard-modal-heading"><div><span className="dashboard-eyebrow">Workspace setup</span><h2><FolderGit2 /> Create a project</h2></div><button className="dashboard-icon-button" onClick={() => setIsNewProjectOpen(false)}><X size={18} /></button></div>
+             <form onSubmit={handleCreateProject}>
+               <label className="dashboard-field-label">Project name
+                 <input
                   type="text"
                   required
                   autoFocus
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="input-base"
+                   className="dashboard-field-input"
                   placeholder="e.g. Mobile Copilot Agent"
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-                <button type="button" onClick={() => setIsNewProjectOpen(false)} className="btn-secondary">
+                 /></label>
+               <div className="dashboard-modal-actions"><button type="button" onClick={() => setIsNewProjectOpen(false)} className="dashboard-button dashboard-button-ghost">
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                 <button type="submit" className="dashboard-button dashboard-button-primary">
                   <Plus size={15} />
                   <span>Create Project</span>
                 </button>
-              </div>
-            </form>
-          </div>
-        </div>
+               </div></form></div></div>
       )}
     </div>
   );

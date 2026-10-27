@@ -1,4 +1,4 @@
-# backend
+# Remora backend
 
 To install dependencies:
 
@@ -6,10 +6,29 @@ To install dependencies:
 bun install
 ```
 
-To run:
+Development:
 
 ```bash
-bun run index.ts
+bun run dev
 ```
 
-This project was created using `bun init` in bun v1.4.2. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Production:
+
+```bash
+bun run build
+bun run start
+```
+
+Production requires:
+
+```text
+NODE_ENV=production
+DATABASE_URL=...
+DIRECT_URL=...
+REDIS_URL=...
+CLERK_SECRET_KEY=...
+CORS_ORIGINS=https://app.example.com
+REQUIRE_REDIS_FOR_RATE_LIMITS=true
+```
+
+The service exposes `/health` for liveness and `/ready` for PostgreSQL/Redis readiness. Dashboard APIs require a valid Clerk session and organization ownership. Memory APIs require a Remora API key and record request usage in Redis for the dashboard usage view.
