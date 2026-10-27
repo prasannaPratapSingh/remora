@@ -14,6 +14,23 @@ interface EnvConfig {
     CORS_ORIGINS: string[];
     CLERK_SECRET_KEY?: string;
     REQUIRE_REDIS_FOR_RATE_LIMITS: boolean;
+    UPSTASH_REDIS_REST_URL?: string;
+    UPSTASH_REDIS_REST_TOKEN?: string;
+}
+
+function computeRedisUrl(): string {
+    if (process.env.REDIS_URL) {
+        return process.env.REDIS_URL;
+    }
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+        try {
+            const host = new URL(process.env.UPSTASH_REDIS_REST_URL).hostname;
+            return `rediss://default:${process.env.UPSTASH_REDIS_REST_TOKEN}@${host}:6379`;
+        } catch {
+            // fallback
+        }
+    }
+    return "redis://127.0.0.1:6379";
 }
 
 const envConfig: EnvConfig = {
@@ -25,7 +42,9 @@ const envConfig: EnvConfig = {
     OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
     DEFAULT_EMBEDDING_MODEL: process.env.DEFAULT_EMBEDDING_MODEL || "text-embedding-3-small",
     DEFAULT_LLM_MODEL: process.env.DEFAULT_LLM_MODEL || "gpt-4o-mini",
-    REDIS_URL: process.env.REDIS_URL || "redis://127.0.0.1:6379",
+    REDIS_URL: computeRedisUrl(),
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     CORS_ORIGINS: (process.env.CORS_ORIGINS || "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000")
         .split(",")
         .map((origin) => origin.trim())

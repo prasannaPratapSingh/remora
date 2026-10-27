@@ -6,10 +6,12 @@ let isRedisAvailable = false;
 
 export function getRedisClient(): Redis {
     if (!redisClient) {
+        const isTls = envConfig.REDIS_URL.startsWith("rediss://");
         redisClient = new Redis(envConfig.REDIS_URL, {
             maxRetriesPerRequest: null,
             enableReadyCheck: false,
             lazyConnect: true,
+            tls: isTls ? { rejectUnauthorized: false } : undefined,
             retryStrategy(times) {
                 // Exponential backoff, max 5s
                 return Math.min(times * 200, 5000);
